@@ -1,12 +1,11 @@
 from rest_framework.serializers import ModelSerializer
 from .models import User
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
-from django.contrib.auth.hashers import make_password
 
 class UserSerializer(ModelSerializer):
     class Meta:
         model = User
-        fields = ['id', 'username', 'email', 'password', 'profile_image','role']
+        fields = ['id', 'username', 'email', 'first_name','last_name', 'password', 'profile_image','role']
         extra_kwargs = {
             'password': {'write_only': True}
         }
@@ -18,14 +17,6 @@ class UserSerializer(ModelSerializer):
             instance.set_password(password)
         instance.save()
         return instance
-
-    def update(self, instance, validated_data):
-        password = validated_data.get('password')
-        if password:
-            hashed_password = make_password(password)
-            validated_data['password'] = hashed_password
-        return super().update(instance, validated_data)
-    
     
 class myTokenObtainPairSerializer(TokenObtainPairSerializer):
     @classmethod
@@ -37,3 +28,5 @@ class myTokenObtainPairSerializer(TokenObtainPairSerializer):
         token['is_admin'] = user.is_superuser
 
         return token
+
+
