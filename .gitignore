@@ -10,7 +10,7 @@
 
 # AWS User-specific
 .idea/**/aws.xml
-
+venv
 # Generated files
 .idea/**/contentModel.xml
 

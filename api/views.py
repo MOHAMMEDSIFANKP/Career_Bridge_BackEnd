@@ -1,6 +1,5 @@
 from .serializers import UserSerializer,myTokenObtainPairSerializer
 from .models import User
-from .email import send_verification_email
 
 from django.utils.http import urlsafe_base64_decode
 from django.contrib.auth.tokens import default_token_generator
@@ -13,14 +12,52 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status
 
+from django.core.mail import EmailMessage
+from .models import User
+from django.contrib.auth.tokens import default_token_generator
+from django.utils.http import urlsafe_base64_encode
+from django.utils.encoding import force_bytes
+from django.template.loader import render_to_string
+from django.contrib.sites.shortcuts import get_current_site
+
 class MyTokenObtainPairView(TokenObtainPairView):
     serializer_class = myTokenObtainPairSerializer
 
 class UserRegister(CreateAPIView):
-    serializer_class = UserSerializer
-    def perform_create(self, serializer):
-        user = serializer.save()
-        send_verification_email(self.request, user)
+    def post(self, request):
+        email = request.data.get('email')
+        password = request.data.get('password')
+
+        serializer = UserSerializer(data=request.data)
+        if serializer.is_valid(raise_exception=True):
+
+            user = serializer.save()
+            user.set_password(password)
+            user.save()
+
+            current_site = get_current_site(request)
+            mail_subject = 'Please activate your account'
+            message = render_to_string('user/activation_email.html', {
+                'user': user,
+                'domain': current_site,
+                'uid': urlsafe_base64_encode(force_bytes(user.pk)),
+                'token': default_token_generator.make_token(user),
+                'cite': current_site
+            })
+            to_email = email
+            send_email = EmailMessage(mail_subject, message, to=[to_email])
+            send_email.send()
+
+            response_data = {
+                'status': 'success',
+                'msg': 'A verification link sent to your registered email address',
+                'data': serializer.data
+            }
+
+            return Response(response_data, status=status.HTTP_201_CREATED)
+        else:
+            print('Serializer errors are:', serializer.errors)
+            return Response({'status': 'error', 'msg': serializer.errors})
 
 @api_view(['GET'])
 def activate(request, uidb64, token):

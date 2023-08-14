@@ -16,13 +16,13 @@ class UserSerializer(ModelSerializer):
         if password is not None:
             instance.set_password(password)
         instance.save()
+        print(instance)
         return instance
     
 class myTokenObtainPairSerializer(TokenObtainPairSerializer):
     @classmethod
     def get_token(cls, user):
         token = super().get_token(user)
-        print(user.username,token)
         token['email'] = user.email
         token['role'] = user.role
         token['is_admin'] = user.is_superuser
