@@ -16,8 +16,16 @@ class UserSerializer(ModelSerializer):
         if password is not None:
             instance.set_password(password)
         instance.save()
-        print(instance)
         return instance
+    
+class GoogleAuthSerializer(ModelSerializer):
+    class Meta:
+        models = User
+        fields = ['id', 'username', 'email', 'first_name','last_name', 'password', 'profile_image','role','is_google']
+        extra_kwargs = {
+            'password': {'write_only': True}
+        }
+
     
 class myTokenObtainPairSerializer(TokenObtainPairSerializer):
     @classmethod

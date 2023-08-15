@@ -1,11 +1,8 @@
-from .serializers import UserSerializer,myTokenObtainPairSerializer
+from .serializers import UserSerializer,GoogleAuthSerializer ,myTokenObtainPairSerializer
 from .models import User
 
-from django.utils.http import urlsafe_base64_decode
-from django.contrib.auth.tokens import default_token_generator
-from django.shortcuts import HttpResponseRedirect
-
 from rest_framework.generics import ListCreateAPIView,RetrieveUpdateDestroyAPIView,CreateAPIView
+from rest_framework.views import APIView
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework.filters import SearchFilter
 from rest_framework.decorators import api_view
@@ -13,12 +10,15 @@ from rest_framework.response import Response
 from rest_framework import status
 
 from django.core.mail import EmailMessage
-from .models import User
-from django.contrib.auth.tokens import default_token_generator
 from django.utils.http import urlsafe_base64_encode
 from django.utils.encoding import force_bytes
 from django.template.loader import render_to_string
 from django.contrib.sites.shortcuts import get_current_site
+from django.utils.http import urlsafe_base64_decode
+from django.contrib.auth.tokens import default_token_generator
+from django.shortcuts import HttpResponseRedirect
+from django.contrib.auth import authenticate
+
 
 class MyTokenObtainPairView(TokenObtainPairView):
     serializer_class = myTokenObtainPairSerializer
@@ -77,6 +77,33 @@ def activate(request, uidb64, token):
         redirect_url = 'http://localhost:5173/login/' + '?message=' + message
 
     return HttpResponseRedirect(redirect_url)
+
+
+class GoogleAuthendication(APIView):
+    def post(self, request):
+        email = request.data.get('email')
+        password = request.data.get('password')
+
+        serializer = UserSerializer(data=request.data)
+        if serializer.is_valid(raise_exception=True):
+
+            user = serializer.save()
+            user.is_active = True
+            user.is_google = True
+            user.set_password(password)
+            user.save()
+
+            response_data = {
+                'status': 'success',
+                'msg': 'Registratin Successfully',
+                'data': serializer.data
+            }
+
+            return Response(response_data, status=status.HTTP_201_CREATED)
+        else:
+            return Response({'status': 'error', 'msg': serializer.errors})
+
+        
 
 class UserList(ListCreateAPIView):
     queryset = User.objects.all().exclude(is_superuser=True)

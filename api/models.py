@@ -16,6 +16,7 @@ class User(AbstractUser):
     role = models.CharField( max_length=30, default='user', choices=ROLE_CHOICES)
     profile_image = models.ImageField(upload_to='profile_image', null=True, blank=True)
     is_active = models.BooleanField(default=False)
+    is_google = models.BooleanField(default=False)
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['username']
