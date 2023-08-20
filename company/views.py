@@ -1,10 +1,8 @@
-from .serializers import UserSerializer,GoogleAuthSerializer ,myTokenObtainPairSerializer
-from .models import User
+from .serializers import CompanySerializer,CompanyGoogleAuthSerializer
+from api.models import User
 
 from rest_framework.generics import RetrieveUpdateDestroyAPIView,CreateAPIView
 from rest_framework.views import APIView
-from rest_framework_simplejwt.views import TokenObtainPairView
-from rest_framework.filters import SearchFilter
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status
@@ -16,22 +14,21 @@ from django.template.loader import render_to_string
 from django.contrib.sites.shortcuts import get_current_site
 from django.utils.http import urlsafe_base64_decode
 from django.contrib.auth.tokens import default_token_generator
-from django.shortcuts import HttpResponseRedirect
 from django.contrib.auth import authenticate
 
 
-class MyTokenObtainPairView(TokenObtainPairView):
-    serializer_class = myTokenObtainPairSerializer
+# Register for CompanyUser
+class CompanyRegister(CreateAPIView):
+    serializer_class = CompanySerializer  # Define the serializer class
 
-class UserRegister(CreateAPIView):
     def post(self, request):
         email = request.data.get('email')
         password = request.data.get('password')
 
-        serializer = UserSerializer(data=request.data)
+        serializer = self.get_serializer(data=request.data)  # Use get_serializer method
         if serializer.is_valid(raise_exception=True):
-
             user = serializer.save()
+            user.role = 'company'
             user.set_password(password)
             user.save()
 
@@ -39,10 +36,10 @@ class UserRegister(CreateAPIView):
             mail_subject = 'Please activate your account'
             message = render_to_string('user/activation_email.html', {
                 'user': user,
-                'domain': current_site,
+                'domain': current_site.domain,
                 'uid': urlsafe_base64_encode(force_bytes(user.pk)),
                 'token': default_token_generator.make_token(user),
-                'cite': current_site
+                'cite': current_site.domain
             })
             to_email = email
             send_email = EmailMessage(mail_subject, message, to=[to_email])
@@ -59,41 +56,18 @@ class UserRegister(CreateAPIView):
             print('Serializer errors are:', serializer.errors)
             return Response({'status': 'error', 'msg': serializer.errors})
 
-@api_view(['GET'])
-def activate(request, uidb64, token):
-    try:
-        uid = urlsafe_base64_decode(uidb64).decode()
-        user = User._default_manager.get(pk=uid)
-    except (TypeError, ValueError, OverflowError, User.DoesNotExist):
-        user = None
-
-    if user is not None and default_token_generator.check_token(user, token):
-        user.is_active = True
-        user.save()
-        message = 'Congrats! Account activated!'
-        if user.role == 'user':
-            redirect_url = 'http://localhost:5173/user/steps' + '?message=' + message
-        else:
-            redirect_url = 'http://localhost:5173/company/company/' + '?message=' + message
-            
-    else:
-        message = 'Invalid activation link'
-        redirect_url = 'http://localhost:5173/login/' + '?message=' + message
-
-    return HttpResponseRedirect(redirect_url)
-
-
-class GoogleAuthendication(APIView):
+# Google Register for CompanyUser
+class CompanyGoogleAuthendication(APIView):
     def post(self, request):
-        email = request.data.get('email')
         password = request.data.get('password')
 
-        serializer = GoogleAuthSerializer(data=request.data)
+        serializer = CompanyGoogleAuthSerializer(data=request.data)
         if serializer.is_valid(raise_exception=True):
 
             user = serializer.save()
             user.is_active = True
             user.is_google = True
+            user.role = 'company'
             user.set_password(password)
             user.save()
 
@@ -107,8 +81,8 @@ class GoogleAuthendication(APIView):
         else:
             return Response({'status': 'error', 'msg': serializer.errors})
 
-
-class UserDetails(RetrieveUpdateDestroyAPIView):
+# Company user Deaits for Profile
+class CompanyUserDetails(RetrieveUpdateDestroyAPIView):
     queryset = User.objects.all()
-    serializer_class = UserSerializer
+    serializer_class = CompanySerializer
     lookup_field = 'id'
