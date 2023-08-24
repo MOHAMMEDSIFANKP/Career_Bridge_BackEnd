@@ -12,3 +12,11 @@ class JobTitle(models.Model):
 
     def __str__(self):
         return self.title_name
+    
+# Languages
+
+class Languages(models.Model):
+    language = models.CharField(max_length=50)
+
+    def __str__(self):
+        return self.language

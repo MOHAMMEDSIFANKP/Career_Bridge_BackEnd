@@ -1,10 +1,10 @@
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework.generics import ListCreateAPIView,RetrieveUpdateDestroyAPIView
-from .models import JobField,JobTitle
+from .models import *
 from rest_framework.filters import SearchFilter
 from django.core.exceptions import ValidationError
 from rest_framework import serializers
-from .serializers import JobFieldSerializers,JobTitleSerializers,AdminTokenObtainPairSerializer
+from .serializers import JobFieldSerializers,JobTitleSerializers,AdminTokenObtainPairSerializer,LanguagesSerializers
 # Create your views here.
 
 
@@ -47,3 +47,16 @@ class JobTitledDetails(RetrieveUpdateDestroyAPIView):
     queryset = JobTitle.objects.all()
     serializer_class = JobTitleSerializers
     lookup_field = 'id'
+
+
+class LanguageListCreateAPIView(ListCreateAPIView):
+    queryset = Languages.objects.all()
+    serializer_class = LanguagesSerializers
+    filter_backends = [SearchFilter]
+    search_fields = ['language']
+
+    def perform_create(self, serializer):
+        language = self.request.data.get('language')
+        if Languages.objects.filter(language=language).exists():
+            raise serializers.ValidationError("A language with this name already exists.")
+        super().perform_create(serializer)

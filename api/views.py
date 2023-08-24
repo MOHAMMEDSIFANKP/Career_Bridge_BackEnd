@@ -24,6 +24,8 @@ class MyTokenObtainPairView(TokenObtainPairView):
     serializer_class = myTokenObtainPairSerializer
 
 class UserRegister(CreateAPIView):
+    def get_serializer_class(self):
+        return UserSerializer
     def post(self, request):
         email = request.data.get('email')
         password = request.data.get('password')
@@ -32,6 +34,7 @@ class UserRegister(CreateAPIView):
         if serializer.is_valid(raise_exception=True):
 
             user = serializer.save()
+            user.role = "user"
             user.set_password(password)
             user.save()
 
@@ -72,9 +75,9 @@ def activate(request, uidb64, token):
         user.save()
         message = 'Congrats! Account activated!'
         if user.role == 'user':
-            redirect_url = 'http://localhost:5173/user/steps' + '?message=' + message
+            redirect_url = 'http://localhost:5173/login' + '?message=' + message
         else:
-            redirect_url = 'http://localhost:5173/company/company/' + '?message=' + message
+            redirect_url = 'http://localhost:5173/login' + '?message=' + message
             
     else:
         message = 'Invalid activation link'
@@ -92,6 +95,7 @@ class GoogleAuthendication(APIView):
         if serializer.is_valid(raise_exception=True):
 
             user = serializer.save()
+            user.role = "user"
             user.is_active = True
             user.is_google = True
             user.set_password(password)
