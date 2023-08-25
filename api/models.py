@@ -21,3 +21,19 @@ class User(AbstractUser):
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['username']
+
+
+class Experience(models.Model):
+    title = models.CharField(max_length=100)
+    subtitle = models.CharField(max_length=100)
+    company = models.CharField(max_length=100)
+    state = models.CharField(max_length=100)
+    country = models.CharField(max_length=100)
+    startdate = models.DateField()
+    enddate = models.DateField()
+    description = models.TextField()
+
+
+class UserInfo(models.Model):
+    userId = models.ForeignKey(User, on_delete=models.CASCADE)
+    experience = models.ManyToManyField(Experience)

@@ -1,6 +1,6 @@
 from rest_framework.serializers import ModelSerializer
 from rest_framework import serializers
-from .models import User
+from .models import *
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
 class UserSerializer(ModelSerializer):
@@ -25,12 +25,24 @@ class myTokenObtainPairSerializer(TokenObtainPairSerializer):
     @classmethod
     def get_token(cls, user):
         token = super().get_token(user)
-        token['is_compleated'] = user.is_compleated
-        token['is_active'] = user.is_active
+        token['id'] = user.id
         token['email'] = user.email
         token['role'] = user.role
+        token['is_compleated'] = user.is_compleated
+        token['is_active'] = user.is_active
         token['is_admin'] = user.is_superuser
 
         return token
 
+class ExperienceSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Experience
+        fields = '__all__'
 
+# User info
+class UserInfoSerializer(serializers.ModelSerializer):
+    experience = ExperienceSerializer(many=True)
+
+    class Meta:
+        model = UserInfo
+        fields = '__all__'

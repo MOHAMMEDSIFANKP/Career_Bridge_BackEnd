@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import GoogleAuthendication,UserDetails,MyTokenObtainPairView,UserRegister
+from .views import *
 from rest_framework_simplejwt.views import TokenRefreshView
 from .import views
 urlpatterns = [
@@ -9,5 +9,10 @@ urlpatterns = [
     path('activate/<uidb64>/<token>', views.activate, name='activate'),
     path('user-detail/<int:id>/',UserDetails.as_view(),name='user_details'),
     path('register/', UserRegister.as_view(),name="user_register"),
-    path('googleregistration/', GoogleAuthendication.as_view(), name='googleregistration')
+    path('googleregistration/', GoogleAuthendication.as_view(), name='googleregistration'),
+
+    path('UserInfoListCreateAPIView/', UserInfoListCreateAPIView.as_view(), name='UserInfoListCreateAPIView'),
+    path('UserInfoDetails/', UserInfoDetails.as_view(), name='UserInfoDetails'),
+    path('ExperienceListCreateAPIView/', ExperienceListCreateAPIView.as_view(), name='ExperienceListCreateAPIView'),
+    path('ExperienceDetails/', ExperienceDetails.as_view(), name='ExperienceDetails'),
 ]

@@ -1,7 +1,7 @@
-from .serializers import UserSerializer,GoogleAuthSerializer ,myTokenObtainPairSerializer
+from .serializers import *
 from .models import User
 
-from rest_framework.generics import RetrieveUpdateDestroyAPIView,CreateAPIView
+from rest_framework.generics import RetrieveUpdateDestroyAPIView,CreateAPIView, ListCreateAPIView
 from rest_framework.views import APIView
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework.filters import SearchFilter
@@ -115,4 +115,23 @@ class GoogleAuthendication(APIView):
 class UserDetails(RetrieveUpdateDestroyAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
+    lookup_field = 'id'
+
+
+class UserInfoListCreateAPIView(ListCreateAPIView):
+    queryset = UserInfo.objects.all()
+    serializer_class = UserInfoSerializer
+
+class UserInfoDetails(RetrieveUpdateDestroyAPIView):
+    queryset = UserInfo.objects.all()
+    serializer_class = UserInfoSerializer
+    lookup_field = 'id'
+
+class ExperienceListCreateAPIView(ListCreateAPIView):
+    queryset = Experience.objects.all()
+    serializer_class = ExperienceSerializer
+
+class ExperienceDetails(RetrieveUpdateDestroyAPIView):
+    queryset = Experience.objects.all()
+    serializer_class = ExperienceSerializer
     lookup_field = 'id'

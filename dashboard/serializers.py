@@ -5,7 +5,7 @@ from .models import *
 class JobFieldSerializers(ModelSerializer):
     class Meta:
         model = JobField
-        fields = ['field_name']
+        fields = ['id','field_name']
 
 class JobTitleSerializers(ModelSerializer):
     class Meta:
