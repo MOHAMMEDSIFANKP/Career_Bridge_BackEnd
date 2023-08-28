@@ -13,4 +13,10 @@ urlpatterns = [
    path('JobTitledDetails/<int:id>/',JobTitledDetails.as_view(), name="JobTitledDetails"),
 
     path('LanguageListCreateAPIView/',LanguageListCreateAPIView.as_view(), name="LanguageListCreateAPIView"),
+    path('LanguagesdDetails/<int:id>/',LanguagesdDetails.as_view(), name="LanguagesdDetails"),
+    
+    path('SkillsListCreateAPIView/',SkillsListCreateAPIView.as_view(), name="SkillsListCreateAPIView"),
+    path('SkillsDetails/<int:id>/',SkillsDetails.as_view(), name="SkillsDetails"),
+
+
 ]

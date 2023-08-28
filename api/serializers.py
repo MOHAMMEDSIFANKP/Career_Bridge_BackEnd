@@ -2,7 +2,7 @@ from rest_framework.serializers import ModelSerializer
 from rest_framework import serializers
 from .models import *
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
-
+from dashboard.serializers import *
 class UserSerializer(ModelSerializer):
 
     class Meta:
@@ -39,10 +39,21 @@ class ExperienceSerializer(serializers.ModelSerializer):
         model = Experience
         fields = '__all__'
 
+# Education
+class EducationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Education
+        fields = '__all__'
+        
 # User info
 class UserInfoSerializer(serializers.ModelSerializer):
     experience = ExperienceSerializer(many=True)
+    languages = LanguagesSerializers(many=True)
+    jobField = JobFieldSerializers(many=True)
+    jobTitle = JobTitleSerializers(many=True)
+    education = EducationSerializer(many=True)
 
     class Meta:
         model = UserInfo
         fields = '__all__'
+

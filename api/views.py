@@ -127,6 +127,12 @@ class UserInfoDetails(RetrieveUpdateDestroyAPIView):
     serializer_class = UserInfoSerializer
     lookup_field = 'id'
 
+    def perform_create(self, serializer):
+        userid = self.request.data.get('userid')
+        if JobField.objects.filter(userId=userid).exists():
+            raise serializers.ValidationError("A User with this id already exists.")
+        super().perform_create(serializer)
+
 class ExperienceListCreateAPIView(ListCreateAPIView):
     queryset = Experience.objects.all()
     serializer_class = ExperienceSerializer
@@ -135,3 +141,15 @@ class ExperienceDetails(RetrieveUpdateDestroyAPIView):
     queryset = Experience.objects.all()
     serializer_class = ExperienceSerializer
     lookup_field = 'id'
+
+class EducationListCreateAPIView(ListCreateAPIView):
+    queryset = Education.objects.all()
+    serializer_class = EducationSerializer
+    lookup_field = 'id'
+
+class EducationDetails(RetrieveUpdateDestroyAPIView):
+    queryset = Education.objects.all()
+    serializer_class = EducationSerializer
+    lookup_field = 'id'
+
+    

@@ -4,7 +4,7 @@ from .models import *
 from rest_framework.filters import SearchFilter
 from django.core.exceptions import ValidationError
 from rest_framework import serializers
-from .serializers import JobFieldSerializers,JobTitleSerializers,AdminTokenObtainPairSerializer,LanguagesSerializers
+from .serializers import *
 # Create your views here.
 
 
@@ -60,3 +60,25 @@ class LanguageListCreateAPIView(ListCreateAPIView):
         if Languages.objects.filter(language=language).exists():
             raise serializers.ValidationError("A language with this name already exists.")
         super().perform_create(serializer)
+
+class LanguagesdDetails(RetrieveUpdateDestroyAPIView):
+    queryset = Languages.objects.all()
+    serializer_class = LanguagesSerializers
+    lookup_field = 'id'
+
+class SkillsListCreateAPIView(ListCreateAPIView):
+    queryset = Skills.objects.all()
+    serializer_class = SkillsSerializers
+    filter_backends = [SearchFilter]
+    search_fields = ['skills']
+
+    def perform_create(self, serializer):
+        skill = self.request.data.get('skills')
+        if Skills.objects.filter(skills = skill).exists():
+            raise serializers.ValidationError("A Skill with this name already exists.")
+        return super().perform_create(serializer)
+    
+class SkillsDetails(RetrieveUpdateDestroyAPIView):
+    queryset = Skills.objects.all()
+    serializer_class = SkillsSerializers
+    lookup_field = 'id'

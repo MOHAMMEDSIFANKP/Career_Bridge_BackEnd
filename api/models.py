@@ -1,6 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
-
+from dashboard.models import *
 
 class User(AbstractUser):
     ROLE_CHOICES = (
@@ -31,9 +31,21 @@ class Experience(models.Model):
     country = models.CharField(max_length=100)
     startdate = models.DateField()
     enddate = models.DateField()
-    description = models.TextField()
+    Description = models.TextField()
 
+class Education(models.Model):
+    School = models.CharField(max_length=100)
+    Degree = models.CharField(max_length=100)
+    DatesAttended = models.DateField()
+    Datesended = models.DateField()
+    Description = models.TextField()
 
 class UserInfo(models.Model):
     userId = models.ForeignKey(User, on_delete=models.CASCADE)
     experience = models.ManyToManyField(Experience)
+    jobField = models.ForeignKey(JobField, on_delete=models.CASCADE)
+    jobTitle = models.ForeignKey(JobTitle, on_delete=models.CASCADE)
+    skills = models.ManyToManyField(Skills)
+    languages = models.ManyToManyField(Languages)
+    education = models.ManyToManyField(Education)
+

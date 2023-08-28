@@ -12,7 +12,11 @@ urlpatterns = [
     path('googleregistration/', GoogleAuthendication.as_view(), name='googleregistration'),
 
     path('UserInfoListCreateAPIView/', UserInfoListCreateAPIView.as_view(), name='UserInfoListCreateAPIView'),
-    path('UserInfoDetails/', UserInfoDetails.as_view(), name='UserInfoDetails'),
+    path('UserInfoDetails/<int:id>/', UserInfoDetails.as_view(), name='UserInfoDetails'),
+    
     path('ExperienceListCreateAPIView/', ExperienceListCreateAPIView.as_view(), name='ExperienceListCreateAPIView'),
-    path('ExperienceDetails/', ExperienceDetails.as_view(), name='ExperienceDetails'),
+    path('ExperienceDetails/<int:id>/', ExperienceDetails.as_view(), name='ExperienceDetails'),
+    
+    path('EducationListCreateAPIView/', EducationListCreateAPIView.as_view(), name='EducationListCreateAPIView'),
+    path('EducationDetails/<int:id>/', EducationDetails.as_view(), name='EducationDetails'),
 ]

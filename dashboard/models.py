@@ -14,9 +14,12 @@ class JobTitle(models.Model):
         return self.title_name
     
 # Languages
-
 class Languages(models.Model):
     language = models.CharField(max_length=50)
 
     def __str__(self):
         return self.language
+
+# Skills
+class Skills(models.Model):
+    skills = models.CharField(max_length=50)

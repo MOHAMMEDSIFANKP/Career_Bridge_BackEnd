@@ -18,6 +18,10 @@ class LanguagesSerializers(ModelSerializer):
         model = Languages
         fields = ['language']
 
+class SkillsSerializers(ModelSerializer):
+    class Meta:
+        model = Skills
+        fields = ['skills']
 
 class AdminTokenObtainPairSerializer(TokenObtainPairSerializer):
     @classmethod
