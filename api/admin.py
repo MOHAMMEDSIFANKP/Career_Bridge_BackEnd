@@ -5,3 +5,4 @@ from .models import *
 admin.site.register(User)
 admin.site.register(UserInfo)
 admin.site.register(Experience)
+admin.site.register(Education)

@@ -41,11 +41,15 @@ class Education(models.Model):
     Description = models.TextField()
 
 class UserInfo(models.Model):
-    userId = models.ForeignKey(User, on_delete=models.CASCADE)
+    userId = models.ForeignKey(User, on_delete=models.CASCADE ,null=True)
     experience = models.ManyToManyField(Experience)
-    jobField = models.ForeignKey(JobField, on_delete=models.CASCADE)
-    jobTitle = models.ForeignKey(JobTitle, on_delete=models.CASCADE)
+    jobField = models.ForeignKey(JobField, on_delete=models.CASCADE,null=True)
+    jobTitle = models.ForeignKey(JobTitle, on_delete=models.CASCADE,null=True)
     skills = models.ManyToManyField(Skills)
     languages = models.ManyToManyField(Languages)
     education = models.ManyToManyField(Education)
+    streetaddress = models.TextField(null=True)
+    city = models.CharField(max_length=100,null=True)
+    state = models.CharField(max_length=100,null=True)
+    zipcode  = models.IntegerField(null=True)
 

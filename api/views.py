@@ -1,5 +1,6 @@
 from .serializers import *
 from .models import User
+from decouple import config
 
 from rest_framework.generics import RetrieveUpdateDestroyAPIView,CreateAPIView, ListCreateAPIView
 from rest_framework.views import APIView
@@ -7,6 +8,7 @@ from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework.filters import SearchFilter
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
+from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework import status
 
 from django.core.mail import EmailMessage
@@ -91,25 +93,102 @@ class GoogleAuthendication(APIView):
         email = request.data.get('email')
         password = request.data.get('password')
 
-        serializer = GoogleAuthSerializer(data=request.data)
-        if serializer.is_valid(raise_exception=True):
+        if not User.objects.filter(email=email).exists():
+            serializer = GoogleAuthSerializer(data=request.data)
+            if serializer.is_valid(raise_exception=True):
 
-            user = serializer.save()
-            user.role = "user"
-            user.is_active = True
-            user.is_google = True
-            user.set_password(password)
-            user.save()
+                user = serializer.save()
+                user.role = "user"
+                user.is_active = True
+                user.is_google = True
+                user.set_password(password)
+                user.save()
+        user = authenticate(request, email=email, password=password)
 
+        if user is not None:
+            token=create_jwt_pair_tokens(user)
             response_data = {
                 'status': 'success',
                 'msg': 'Registratin Successfully',
-                'data': serializer.data
+                'token': token,
             }
 
             return Response(response_data, status=status.HTTP_201_CREATED)
         else:
             return Response({'status': 'error', 'msg': serializer.errors})
+
+def CheckuserInfo(id):
+    try:
+        result = UserInfo.objects.get(userId=id)
+        return result.id
+    except UserInfo.DoesNotExist:
+        return None
+    
+def create_jwt_pair_tokens(user):
+    userInfoId = CheckuserInfo(user.id)
+    
+    refresh = RefreshToken.for_user(user)
+    refresh['userInfoId'] = userInfoId
+    refresh['first_name'] = user.first_name
+    refresh['last_name'] = user.last_name
+    refresh['email'] = user.email
+    refresh['role'] = user.role
+    refresh['is_compleated'] = user.is_compleated
+    refresh['is_active'] = user.is_active
+    refresh['is_admin'] = user.is_superuser
+
+   
+    access_token = str(refresh.access_token) # type: ignore
+    refresh_token = str(refresh)
+
+    
+    return {
+        "access_token": access_token,
+        "refresh_token": refresh_token,
+    }
+
+class Forgotpassword(APIView):
+    def post(self, request):
+        email =  request.data.get('email')
+        if User.objects.filter(email=email).exists:
+            user = User.objects.get(email=email)
+            current_site = get_current_site(request)
+            mail_subject = 'Reset your password'
+            message = render_to_string('user/forgot_password.html', {
+                'user': user,
+                'domain': current_site,
+                'uid': urlsafe_base64_encode(force_bytes(user.pk)),
+                'cite': current_site
+            })
+            to_email = email
+            send_email = EmailMessage(mail_subject, message, to=[to_email])
+            send_email.send()
+
+            response_data = {
+                'status': 'success',
+                'msg': 'A verification link sent to your registered email address',
+                'user': user.id
+            }
+
+            return Response(response_data, status=status.HTTP_201_CREATED)
+        else:
+            return Response({'status': 'error', 'msg': 'Invalid Email'})
+
+
+@api_view(['GET'])
+def resetpassword(request, uidb64):
+    try:
+        uid = urlsafe_base64_decode(uidb64).decode()
+        user = User._default_manager.get(pk=uid)
+    except (TypeError, ValueError, OverflowError, User.DoesNotExist):
+        user = None
+    Baseurl = config('BaseUrl')
+    if User.objects.filter(id=user.id).exists():
+        redirect_url = Baseurl+'forgotpassword'
+    else:
+        message = 'Invalid activation link'
+        redirect_url = Baseurl+'resetpassword' + '?message=' + message
+    return HttpResponseRedirect(redirect_url)
 
 
 class UserDetails(RetrieveUpdateDestroyAPIView):
@@ -126,12 +205,6 @@ class UserInfoDetails(RetrieveUpdateDestroyAPIView):
     queryset = UserInfo.objects.all()
     serializer_class = UserInfoSerializer
     lookup_field = 'id'
-
-    def perform_create(self, serializer):
-        userid = self.request.data.get('userid')
-        if JobField.objects.filter(userId=userid).exists():
-            raise serializers.ValidationError("A User with this id already exists.")
-        super().perform_create(serializer)
 
 class ExperienceListCreateAPIView(ListCreateAPIView):
     queryset = Experience.objects.all()

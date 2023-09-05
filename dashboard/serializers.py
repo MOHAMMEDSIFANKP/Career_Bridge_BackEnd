@@ -21,7 +21,7 @@ class LanguagesSerializers(ModelSerializer):
 class SkillsSerializers(ModelSerializer):
     class Meta:
         model = Skills
-        fields = ['skills']
+        fields = ['id','skills']
 
 class AdminTokenObtainPairSerializer(TokenObtainPairSerializer):
     @classmethod
