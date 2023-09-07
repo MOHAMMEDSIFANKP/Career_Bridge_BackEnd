@@ -24,13 +24,18 @@ class GoogleAuthSerializer(serializers.ModelSerializer):
         extra_kwargs = {
             'password': {'write_only': True}
         }
-        
-# User Profile
+
+# Rest password
+class RestPasswordSerializer(serializers.Serializer):
+    password = serializers.CharField()
+
+# Update User Profile
 class UserProfileUpdateSerializer(ModelSerializer):
     class Meta:
         model = User
         fields = ['profile_image']
 
+# Update is compleated
 class IsCompletedUpdateSerializer(ModelSerializer):
     class Meta:
         model = User

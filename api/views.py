@@ -2,7 +2,7 @@ from .serializers import *
 from .models import User
 from decouple import config
 
-from rest_framework.generics import RetrieveUpdateDestroyAPIView,CreateAPIView, ListCreateAPIView
+from rest_framework.generics import RetrieveUpdateDestroyAPIView,CreateAPIView, ListCreateAPIView, UpdateAPIView
 from rest_framework.views import APIView
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework.filters import SearchFilter
@@ -93,7 +93,7 @@ class GoogleAuthendication(APIView):
         email = request.data.get('email')
         password = request.data.get('password')
 
-        if not User.objects.filter(email=email).exists():
+        if not User.objects.filter(email=email,is_google=True).exists():
             serializer = GoogleAuthSerializer(data=request.data)
             if serializer.is_valid(raise_exception=True):
 
@@ -143,14 +143,15 @@ def create_jwt_pair_tokens(user):
 
     
     return {
-        "access_token": access_token,
-        "refresh_token": refresh_token,
+        "access": access_token,
+        "refresh": refresh_token,
     }
 
 class Forgotpassword(APIView):
     def post(self, request):
         email =  request.data.get('email')
-        if User.objects.filter(email=email).exists:
+        print(email)
+        if User.objects.filter(email=email).exclude(is_google=True).exists():
             user = User.objects.get(email=email)
             current_site = get_current_site(request)
             mail_subject = 'Reset your password'
@@ -184,11 +185,32 @@ def resetpassword(request, uidb64):
         user = None
     Baseurl = config('BaseUrl')
     if User.objects.filter(id=user.id).exists():
-        redirect_url = Baseurl+'forgotpassword'
+        redirect_url = Baseurl+'resetpassword'
     else:
         message = 'Invalid activation link'
         redirect_url = Baseurl+'resetpassword' + '?message=' + message
     return HttpResponseRedirect(redirect_url)
+
+# Update User Details
+class UserRestpassword(APIView):
+    def put(self, request, id):
+        serializer = RestPasswordSerializer(data=request.data)
+        if serializer.is_valid():
+            password = serializer.validated_data['password']
+            try:
+                user = User.objects.get(id=id)
+                user.set_password(password)
+                user.save()
+                token = create_jwt_pair_tokens(user)
+                response_data = {
+                    'status': 'success',
+                    'msg': 'Password updated successfully',
+                    'token': token,
+                }
+                return Response(response_data, status=status.HTTP_201_CREATED)
+            except User.DoesNotExist:
+                return Response({'status': 'error', 'msg': 'User not found'})
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class UserDetails(RetrieveUpdateDestroyAPIView):
@@ -196,10 +218,6 @@ class UserDetails(RetrieveUpdateDestroyAPIView):
     serializer_class = UserSerializer
     lookup_field = 'id'
 
-
-class UserInfoListCreateAPIView(ListCreateAPIView):
-    queryset = UserInfo.objects.all()
-    serializer_class = UserInfoSerializer
 
 class UserInfoDetails(RetrieveUpdateDestroyAPIView):
     queryset = UserInfo.objects.all()
