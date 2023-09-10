@@ -25,22 +25,6 @@ class GoogleAuthSerializer(serializers.ModelSerializer):
             'password': {'write_only': True}
         }
 
-# Rest password
-class RestPasswordSerializer(serializers.Serializer):
-    password = serializers.CharField()
-
-# Update User Profile
-class UserProfileUpdateSerializer(ModelSerializer):
-    class Meta:
-        model = User
-        fields = ['profile_image']
-
-# Update is compleated
-class IsCompletedUpdateSerializer(ModelSerializer):
-    class Meta:
-        model = User
-        fields = ['is_compleated']
-
 def CheckuserInfo(id):
     try:
         result = UserInfo.objects.get(userId=id)
@@ -48,6 +32,7 @@ def CheckuserInfo(id):
     except UserInfo.DoesNotExist:
         return None
 
+# Token
 class myTokenObtainPairSerializer(TokenObtainPairSerializer):
     @classmethod
     def get_token(cls, user):
@@ -65,12 +50,13 @@ class myTokenObtainPairSerializer(TokenObtainPairSerializer):
 
         return token
 
+# Crud for Experience
 class ExperienceSerializer(serializers.ModelSerializer):
     class Meta:
         model = Experience
         fields = '__all__'
 
-# Education
+# Crud for Education
 class EducationSerializer(serializers.ModelSerializer):
     class Meta:
         model = Education
@@ -91,6 +77,7 @@ class UserInfoSerializer(serializers.ModelSerializer):
         
     def create(self, validated_data):
 
+        print(validated_data,'daxooo')
         experience_data = validated_data.pop('experience', [])
         languages_data = validated_data.pop('languages', [])
         user_id = validated_data.pop('userId', None)
@@ -98,6 +85,7 @@ class UserInfoSerializer(serializers.ModelSerializer):
         job_title_name = validated_data.pop('jobTitle', {}).get('title_name')
         education_data = validated_data.pop('education', [])
         skills_data = validated_data.pop('skills', [])
+       
         
         if UserInfo.objects.filter(userId=user_id).exists():
             raise ValidationError('User info with this userId already exists.')
@@ -121,3 +109,28 @@ class UserInfoSerializer(serializers.ModelSerializer):
         user_info.languages.add(*[Languages.objects.get_or_create(language=lang['language'])[0] for lang in languages_data])
         user_info.skills.add(*Skills.objects.filter(skills__in=[skill['skills'] for skill in skills_data]))
         return user_info
+    
+
+#--------------------------------UPDATE----------------------------------------------# 
+
+# Rest password
+class RestPasswordSerializer(serializers.Serializer):
+    password = serializers.CharField()
+
+# Update User Profile
+class UserProfileUpdateSerializer(ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['profile_image']
+
+# Update is compleated
+class IsCompletedUpdateSerializer(ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['is_compleated']
+        
+# Update User Details (First_name, Last_name, Email)
+class UpdateUseAccount(ModelSerializer):
+    class Meta:
+        models = User
+        fields = ['first_name','last_name','email']

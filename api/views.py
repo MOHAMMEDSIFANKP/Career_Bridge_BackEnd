@@ -22,9 +22,11 @@ from django.shortcuts import HttpResponseRedirect
 from django.contrib.auth import authenticate
 
 
+# Login and Token creations
 class MyTokenObtainPairView(TokenObtainPairView):
     serializer_class = myTokenObtainPairSerializer
 
+# Registraion for User (Include send mail)
 class UserRegister(CreateAPIView):
     def get_serializer_class(self):
         return UserSerializer
@@ -39,7 +41,7 @@ class UserRegister(CreateAPIView):
             user.role = "user"
             user.set_password(password)
             user.save()
-
+            # Send Mail
             current_site = get_current_site(request)
             mail_subject = 'Please activate your account'
             message = render_to_string('user/activation_email.html', {
@@ -64,6 +66,7 @@ class UserRegister(CreateAPIView):
             print('Serializer errors are:', serializer.errors)
             return Response({'status': 'error', 'msg': serializer.errors})
 
+# Email Validation link 
 @api_view(['GET'])
 def activate(request, uidb64, token):
     try:
@@ -87,7 +90,7 @@ def activate(request, uidb64, token):
 
     return HttpResponseRedirect(redirect_url)
 
-
+# Google Signup
 class GoogleAuthendication(APIView):
     def post(self, request):
         email = request.data.get('email')
@@ -218,6 +221,9 @@ class UserDetails(RetrieveUpdateDestroyAPIView):
     serializer_class = UserSerializer
     lookup_field = 'id'
 
+class UserInfoListCreateAPIView(ListCreateAPIView):
+    queryset = UserInfo.objects.all()
+    serializer_class = UserInfoSerializer
 
 class UserInfoDetails(RetrieveUpdateDestroyAPIView):
     queryset = UserInfo.objects.all()

@@ -48,6 +48,7 @@ class UserInfo(models.Model):
     skills = models.ManyToManyField(Skills)
     languages = models.ManyToManyField(Languages)
     education = models.ManyToManyField(Education)
+    cv = models.FileField(upload_to='cv_uploads/',null=True, blank=True)
     streetaddress = models.TextField(null=True)
     city = models.CharField(max_length=100,null=True)
     state = models.CharField(max_length=100,null=True)
