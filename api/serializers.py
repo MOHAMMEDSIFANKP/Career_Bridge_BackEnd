@@ -5,6 +5,7 @@ from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from dashboard.serializers import *
 from django.shortcuts import get_object_or_404
 from rest_framework.exceptions import ValidationError
+import re
 
 
 # User Account 
@@ -130,7 +131,23 @@ class IsCompletedUpdateSerializer(ModelSerializer):
         fields = ['is_compleated']
         
 # Update User Details (First_name, Last_name, Email)
-class UpdateUseAccount(ModelSerializer):
+class UpdateUseAccountSerializer(ModelSerializer):
     class Meta:
-        models = User
+        model = User
         fields = ['first_name','last_name','email']
+
+        # def update(self, instance, validated_data):
+        #     fist_name = validated_data.pop('fist_name', None)
+        #     last_name = validated_data.pop('last_name', None)
+        #     email = validated_data.pop('email', None)
+        #     userId = self.context.get('id')
+        #     print(email,userId,fist_name,'daxo')
+        #     try:
+        #         user = User.objects.get(id=userId)
+        #         if user.email == email:
+                   
+        #            pass
+        #         else:
+        #             print('other emailn id')
+        #     except:
+        #         None

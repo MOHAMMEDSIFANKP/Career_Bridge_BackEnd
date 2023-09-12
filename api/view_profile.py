@@ -12,3 +12,11 @@ class Is_compleatedUpdate(UpdateAPIView):
     queryset = User.objects.all()
     serializer_class = IsCompletedUpdateSerializer
     lookup_field = 'id'
+
+class UpdateUseAccount(UpdateAPIView):
+    queryset = User.objects.all()
+    serializer_class = UpdateUseAccountSerializer
+    lookup_field = 'id'
+
+    
+
