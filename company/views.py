@@ -1,7 +1,8 @@
-from .serializers import CompanySerializer,CompanyGoogleAuthSerializer
+from .serializers import *
 from api.models import User
+from .models import *
 
-from rest_framework.generics import RetrieveUpdateDestroyAPIView,CreateAPIView
+from rest_framework.generics import RetrieveUpdateDestroyAPIView,CreateAPIView,ListCreateAPIView
 from rest_framework.views import APIView
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
@@ -86,3 +87,18 @@ class CompanyUserDetails(RetrieveUpdateDestroyAPIView):
     queryset = User.objects.all()
     serializer_class = CompanySerializer
     lookup_field = 'id'
+
+class CompanyInfoListCreateAPIView(ListCreateAPIView):
+    queryset = CompanyInfo.objects.all()
+    serializer_class = CompanyInfoSerializer
+
+    def perform_create(self, serializer):
+        userid = serializer.validated_data.get('userId')
+        existing_company_info = CompanyInfo.objects.filter(userId=userid).first()
+
+        if existing_company_info:
+            return Response(
+                {"detail": "CompanyInfo with this userid already exists."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        serializer.save()

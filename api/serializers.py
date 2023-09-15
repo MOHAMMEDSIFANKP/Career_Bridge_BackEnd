@@ -6,8 +6,7 @@ from dashboard.serializers import *
 from django.shortcuts import get_object_or_404
 from rest_framework.exceptions import ValidationError
 import re
-
-
+from company.models import CompanyInfo
 # User Account 
 class UserSerializer(ModelSerializer):
     class Meta:
@@ -32,24 +31,42 @@ def CheckuserInfo(id):
         return result.id
     except UserInfo.DoesNotExist:
         return None
-
+def CheckcompanyInfo(id):
+    try:
+        result = CompanyInfo.objects.get(userId=id)
+        return result
+    except CompanyInfo.DoesNotExist:
+        return None
 # Token
 class myTokenObtainPairSerializer(TokenObtainPairSerializer):
     @classmethod
     def get_token(cls, user):
-        userInfoId = CheckuserInfo(user.id)
-        token = super().get_token(user)
+        if user.role == "user":
+            userInfoId = CheckuserInfo(user.id)
+            token = super().get_token(user)
 
-        token['userInfoId']=userInfoId
-        token['first_name']=user.first_name
-        token['last_name'] = user.last_name
-        token['email'] = user.email
-        token['role'] = user.role
-        token['is_compleated'] = user.is_compleated
-        token['is_active'] = user.is_active
-        token['is_admin'] = user.is_superuser
-
+            token['userInfoId']=userInfoId
+            token['first_name']=user.first_name
+            token['last_name'] = user.last_name
+            token['email'] = user.email
+            token['role'] = user.role
+            token['is_compleated'] = user.is_compleated
+            token['is_active'] = user.is_active
+            token['is_admin'] = user.is_superuser
+        else:
+            companyInfoId = CheckcompanyInfo(user.id)
+            token = super().get_token(user)
+            token['companyInfoId'] = companyInfoId
+            token['first_name']=user.first_name
+            token['last_name'] = user.last_name
+            token['email'] = user.email
+            token['role'] = user.role
+            token['is_compleated'] = user.is_compleated
+            token['is_active'] = user.is_active
+            token['is_admin'] = user.is_superuser
         return token
+
+        
 
 # Crud for Experience
 class ExperienceSerializer(serializers.ModelSerializer):
@@ -66,19 +83,17 @@ class EducationSerializer(serializers.ModelSerializer):
 # User info
 class UserInfoSerializer(serializers.ModelSerializer):
     experience = ExperienceSerializer(many=True,required=False)
-    languages = LanguagesSerializers(many=True)
-    jobField = JobFieldSerializers()
-    jobTitle = JobTitleSerializers()
-    education = EducationSerializer(many=True)
-    skills = SkillsSerializers(many=True)
+    languages = LanguagesSerializers(many=True,required=False)
+    jobField = JobFieldSerializers(required=False)
+    jobTitle = JobTitleSerializers(required=False)
+    education = EducationSerializer(many=True,required=False)
+    skills = SkillsSerializers(many=True,required=False)
 
     class Meta:
         model = UserInfo
         fields = '__all__'
         
     def create(self, validated_data):
-
-        print(validated_data,'daxooo')
         experience_data = validated_data.pop('experience', [])
         languages_data = validated_data.pop('languages', [])
         user_id = validated_data.pop('userId', None)
@@ -108,9 +123,59 @@ class UserInfoSerializer(serializers.ModelSerializer):
         user_info.education.add(*[Education.objects.create(**edu) for edu in education_data])
         user_info.experience.add(*[Experience.objects.create(**exp) for exp in experience_data])
         user_info.languages.add(*[Languages.objects.get_or_create(language=lang['language'])[0] for lang in languages_data])
-        user_info.skills.add(*Skills.objects.filter(skills__in=[skill['skills'] for skill in skills_data]))
+        user_info.skills.add(*Skills.objects.filter(skills__in=[skill['skills'] for skill in skills_data]),through_defaults={'set': True})
+
         return user_info
     
+    def update(self, instance, validated_data):
+        job_field_name = validated_data.pop('jobField', {}).get('field_name')
+        job_title_name = validated_data.pop('jobTitle', {}).get('title_name')
+        bio = validated_data.pop('bio', None)
+        skills_data = validated_data.pop('skills', [])
+        cv = validated_data.pop('cv', None)
+        experience_data = validated_data.pop('experience', [])
+        education_data = validated_data.pop('education', [])
+        streetaddress = validated_data.pop('streetaddress', None)
+        city = validated_data.pop('city', None)
+        state = validated_data.pop('state', None)
+        zipcode = validated_data.pop('zipcode', None)
+
+        # experience_data = validated_data.pop
+
+        if job_field_name and job_title_name:
+            instance.jobField = JobField.objects.get(field_name=job_field_name)
+            instance.jobTitle = JobTitle.objects.get(title_name=job_title_name)
+            instance.save()
+
+        if bio:
+            instance.bio = bio
+            instance.save()
+
+        if skills_data:
+            new_skills = [skill['skills'] for skill in skills_data]
+            skills_to_add = Skills.objects.filter(skills__in=new_skills)
+            instance.skills.add(*skills_to_add, through_defaults={'set': True})
+
+        if cv:
+            instance.cv = cv
+            instance.save()
+        
+        if experience_data:
+            instance.experience.add(*[Experience.objects.create(**exp) for exp in experience_data])
+
+        if education_data:
+           instance.education.add(*[Education.objects.create(**edu) for edu in education_data])
+
+        if streetaddress and city and state and zipcode:
+            instance.streetaddress = streetaddress
+            instance.city = city
+            instance.state = state
+            instance.zipcode = zipcode
+            instance.save()
+
+        return instance
+
+
 
 #--------------------------------UPDATE----------------------------------------------# 
 
@@ -134,20 +199,5 @@ class IsCompletedUpdateSerializer(ModelSerializer):
 class UpdateUseAccountSerializer(ModelSerializer):
     class Meta:
         model = User
-        fields = ['first_name','last_name','email']
+        fields = ['first_name','last_name']
 
-        # def update(self, instance, validated_data):
-        #     fist_name = validated_data.pop('fist_name', None)
-        #     last_name = validated_data.pop('last_name', None)
-        #     email = validated_data.pop('email', None)
-        #     userId = self.context.get('id')
-        #     print(email,userId,fist_name,'daxo')
-        #     try:
-        #         user = User.objects.get(id=userId)
-        #         if user.email == email:
-                   
-        #            pass
-        #         else:
-        #             print('other emailn id')
-        #     except:
-        #         None

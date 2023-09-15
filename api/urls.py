@@ -3,6 +3,7 @@ from .views import *
 from .view_profile import *
 from rest_framework_simplejwt.views import TokenRefreshView
 from .import views
+from .import view_profile
 urlpatterns = [
     path('token/', MyTokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
@@ -19,7 +20,8 @@ urlpatterns = [
     path('UserInfoDetails/<int:id>/', UserInfoDetails.as_view(), name='UserInfoDetails'),
     path('UserProfileUpdate/<int:id>/', UserProfileUpdate.as_view(), name='UserProfileUpdate'),
     path('Is_compleatedUpdate/<int:id>/', Is_compleatedUpdate.as_view(), name='Is_compleatedUpdate'),
-    path('UpdateUseAccount/<int:id>/', UpdateUseAccount.as_view(), name='UpdateUseAccount'),
+    path('updateuseaccount/<int:id>/', UpdateUseAccount.as_view(), name='UpdateUseAccount'),
+    path('remove_skill/', view_profile.remove_skill, name='remove_skill'),
     
     path('ExperienceListCreateAPIView/', ExperienceListCreateAPIView.as_view(), name='ExperienceListCreateAPIView'),
     path('ExperienceDetails/<int:id>/', ExperienceDetails.as_view(), name='ExperienceDetails'),
