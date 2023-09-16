@@ -11,7 +11,7 @@ from company.models import CompanyInfo
 class UserSerializer(ModelSerializer):
     class Meta:
         model = User
-        fields = ['id', 'username', 'email', 'first_name','last_name', 'password', 'profile_image','role']
+        fields = ['id', 'username', 'email', 'first_name','last_name', 'password', 'profile_image','role','is_compleated']
         extra_kwargs = {
             'password': {'write_only': True}
         }
@@ -34,7 +34,7 @@ def CheckuserInfo(id):
 def CheckcompanyInfo(id):
     try:
         result = CompanyInfo.objects.get(userId=id)
-        return result
+        return result.id
     except CompanyInfo.DoesNotExist:
         return None
 # Token

@@ -88,6 +88,7 @@ class CompanyUserDetails(RetrieveUpdateDestroyAPIView):
     serializer_class = CompanySerializer
     lookup_field = 'id'
 
+#  Company Creations
 class CompanyInfoListCreateAPIView(ListCreateAPIView):
     queryset = CompanyInfo.objects.all()
     serializer_class = CompanyInfoSerializer
@@ -102,3 +103,9 @@ class CompanyInfoListCreateAPIView(ListCreateAPIView):
                 status=status.HTTP_400_BAD_REQUEST
             )
         serializer.save()
+
+# Company Deaits 
+class CompanyDetails(RetrieveUpdateDestroyAPIView):
+    queryset = CompanyInfo.objects.all()
+    serializer_class = CompanyInfoSerializer
+    lookup_field = 'id'

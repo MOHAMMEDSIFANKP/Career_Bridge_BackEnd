@@ -8,4 +8,5 @@ urlpatterns = [
     path('googleregistration/', CompanyGoogleAuthendication.as_view(), name='googleregistration'),
     
     path('companyinfolistcreateapview/', CompanyInfoListCreateAPIView.as_view(), name='CompanyInfoListCreateAPIView'),
+    path('companydetails/<int:id>/', CompanyDetails.as_view(), name='CompanyDetails'),
 ]
