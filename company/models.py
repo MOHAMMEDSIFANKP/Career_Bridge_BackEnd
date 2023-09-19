@@ -1,5 +1,6 @@
 from django.db import models
-from api.models import User
+from api.models import *
+from dashboard.models import *
 # Create your models here.
 
 
@@ -12,8 +13,29 @@ class CompanyInfo(models.Model):
     gst = models.CharField(max_length=100, null=True)
     description = models.TextField(null=True)
     streetaddress = models.TextField(null=True)
-    contry = models.CharField(max_length=100,null=True)
+    country = models.CharField(max_length=100,null=True)
     state = models.CharField(max_length=100,null=True)
-    district = models.CharField(max_length=100,null=True)
+    city = models.CharField(max_length=100,null=True)
     zipcode = models.BigIntegerField(null=True)
     is_verify = models.BooleanField(default=False)
+
+class Post(models.Model):
+    WORK_TIME_CHOICES = [
+    ('short-term', 'short-term'),
+    ('long-term', 'long-term'),
+    ]
+    EXPERIENCE_LEVEL_CHOICES = [
+    ('fresher', 'fresher'),
+    ('intermediate', 'intermediate'),
+    ('export', 'export'),
+    ]
+    companyinfo = models.ForeignKey(CompanyInfo,on_delete=models.CASCADE,null=True)
+    work_time = models.CharField(max_length=20,choices=WORK_TIME_CHOICES,default='long-term')
+    job_category = models.ForeignKey(JobField,on_delete=models.CASCADE,null=True)
+    Jobtitle = models.ForeignKey(JobTitle, on_delete=models.CASCADE,null=True)
+    skills = models.ManyToManyField(Skills)
+    level_of_experience = models.CharField(max_length=20,choices=EXPERIENCE_LEVEL_CHOICES,default='fresher')
+    year_of_experience = models.BigIntegerField(blank=True,null=True)
+    education = models.TextField(null=True)
+    description = models.TextField(null=True)
+

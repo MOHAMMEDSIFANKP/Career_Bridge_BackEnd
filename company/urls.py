@@ -9,4 +9,5 @@ urlpatterns = [
     
     path('companyinfolistcreateapview/', CompanyInfoListCreateAPIView.as_view(), name='CompanyInfoListCreateAPIView'),
     path('companydetails/<int:id>/', CompanyDetails.as_view(), name='CompanyDetails'),
+    path('companyPostlistCreateapiview/', CompanyPostListCreateAPIView.as_view(), name='CompanyPostListCreateAPIView'),
 ]
