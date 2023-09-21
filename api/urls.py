@@ -11,6 +11,7 @@ urlpatterns = [
     path('activate/<uidb64>/<token>', views.activate, name='activate'),
     path('user-detail/<int:id>/',UserDetails.as_view(),name='user_details'),
     path('register/', UserRegister.as_view(),name="user_register"),
+    path('Resend_registration_link/', views.Resend_registration_link,name="Resend_registration_link"),
     path('googleregistration/', GoogleAuthendication.as_view(), name='googleregistration'),
     path('forgotpassword/', Forgotpassword.as_view(), name='Forgotpassword'),
     path('resetpassword/<uidb64>/', views.resetpassword, name='resetpassword'),

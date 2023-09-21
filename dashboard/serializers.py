@@ -10,7 +10,7 @@ class JobFieldSerializers(ModelSerializer):
 class JobTitleSerializers(ModelSerializer):
     class Meta:
         model = JobTitle
-        fields = ['title_name', 'field']
+        fields = ['id','title_name', 'field']
 
 
 class LanguagesSerializers(ModelSerializer):

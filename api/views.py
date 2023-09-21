@@ -1,8 +1,9 @@
 from .serializers import *
 from .models import User
 from decouple import config
+from .tasks import *
 
-from rest_framework.generics import RetrieveUpdateDestroyAPIView,CreateAPIView, ListCreateAPIView, UpdateAPIView
+from rest_framework.generics import RetrieveUpdateDestroyAPIView,CreateAPIView, ListCreateAPIView
 from rest_framework.views import APIView
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework.filters import SearchFilter
@@ -11,11 +12,7 @@ from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework import status
 
-from django.core.mail import EmailMessage
-from django.utils.http import urlsafe_base64_encode
-from django.utils.encoding import force_bytes
-from django.template.loader import render_to_string
-from django.contrib.sites.shortcuts import get_current_site
+
 from django.utils.http import urlsafe_base64_decode
 from django.contrib.auth.tokens import default_token_generator
 from django.shortcuts import HttpResponseRedirect
@@ -41,19 +38,7 @@ class UserRegister(CreateAPIView):
             user.role = "user"
             user.set_password(password)
             user.save()
-            # Send Mail
-            current_site = get_current_site(request)
-            mail_subject = 'Please activate your account'
-            message = render_to_string('user/activation_email.html', {
-                'user': user,
-                'domain': current_site,
-                'uid': urlsafe_base64_encode(force_bytes(user.pk)),
-                'token': default_token_generator.make_token(user),
-                'cite': current_site
-            })
-            to_email = email
-            send_email = EmailMessage(mail_subject, message, to=[to_email])
-            send_email.send()
+            send_activation_email.delay(email, user.pk)
 
             response_data = {
                 'status': 'success',
@@ -65,6 +50,23 @@ class UserRegister(CreateAPIView):
         else:
             print('Serializer errors are:', serializer.errors)
             return Response({'status': 'error', 'msg': serializer.errors})
+
+
+# Resend Registration mail
+@api_view(['POST'])
+def Resend_registration_link(request):
+    email = request.data.get('email')
+    try:
+        user = User.objects.get(email = email)
+        if user:
+            send_activation_email.delay(email, user.pk)
+        response_data = {
+                'status': 'success',
+                'msg': 'A verification link sent to your registered email address',
+            }
+        return Response(response_data, status=status.HTTP_200_OK)
+    except User.DoesNotExist:
+        return Response({'message': 'invalid email'}, status=status.HTTP_404_NOT_FOUND)
 
 # Email Validation link 
 @api_view(['GET'])
@@ -106,7 +108,7 @@ class GoogleAuthendication(APIView):
                 user.is_google = True
                 user.set_password(password)
                 user.save()
-        user = authenticate(request, email=email, password=password)
+        user = authenticate( email=email, password=password)
 
         if user is not None:
             token=create_jwt_pair_tokens(user)
@@ -153,21 +155,9 @@ def create_jwt_pair_tokens(user):
 class Forgotpassword(APIView):
     def post(self, request):
         email =  request.data.get('email')
-        print(email)
         if User.objects.filter(email=email).exclude(is_google=True).exists():
             user = User.objects.get(email=email)
-            current_site = get_current_site(request)
-            mail_subject = 'Reset your password'
-            message = render_to_string('user/forgot_password.html', {
-                'user': user,
-                'domain': current_site,
-                'uid': urlsafe_base64_encode(force_bytes(user.pk)),
-                'cite': current_site
-            })
-            to_email = email
-            send_email = EmailMessage(mail_subject, message, to=[to_email])
-            send_email.send()
-
+            send_forgotpassword_email.delay(email)
             response_data = {
                 'status': 'success',
                 'msg': 'A verification link sent to your registered email address',

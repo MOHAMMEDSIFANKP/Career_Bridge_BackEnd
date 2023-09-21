@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Your Email Title</title>
+</head>
+<body>
+    <h1>Hello {{ user.username }},</h1>
+    <p>A new job post has been created that matches your skills and work time:</p>
+    <p><strong>Job Title:</strong> {{ post.Jobtitle.title_name }}</p>
+    <p><strong>Work Time:</strong> {{ post.work_time }}</p>
+    <p><strong>Job Description:</strong> {{ post.description }}</p>
+    <!-- You can format and style your email content here -->
+</body>
+</html>

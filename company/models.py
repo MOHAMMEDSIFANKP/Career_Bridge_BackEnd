@@ -38,4 +38,7 @@ class Post(models.Model):
     year_of_experience = models.BigIntegerField(blank=True,null=True)
     education = models.TextField(null=True)
     description = models.TextField(null=True)
+    created_at = models.DateTimeField(auto_now_add=True,null=True)
+    is_blocked = models.BooleanField(default=False)
+    is_deleted = models.BooleanField(default=False)
 

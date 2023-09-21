@@ -9,5 +9,9 @@ urlpatterns = [
     
     path('companyinfolistcreateapview/', CompanyInfoListCreateAPIView.as_view(), name='CompanyInfoListCreateAPIView'),
     path('companydetails/<int:id>/', CompanyDetails.as_view(), name='CompanyDetails'),
+    
     path('companyPostlistCreateapiview/', CompanyPostListCreateAPIView.as_view(), name='CompanyPostListCreateAPIView'),
+    path('listofcompanypost/<int:id>/', Listofcompanypost.as_view(), name='Listofcompanypost'),
+    path('companypostdetails/<int:id>/', CompanyPostDetails.as_view(), name='CompanyPostDetails'),
+    path('seeimages/', views.seeimages, name='seeimages'),
 ]
