@@ -132,6 +132,7 @@ class CompanyDetails(RetrieveUpdateDestroyAPIView):
     serializer_class = CompanyInfoSerializer
     lookup_field = 'id'
 
+
 # Company Post
 class CompanyPostListCreateAPIView(ListCreateAPIView):
     queryset = Post.objects.all()
