@@ -43,3 +43,9 @@ class CompanyPostRetrieveSerilizer(ModelSerializer):
     class Meta:
         model = Post
         fields= '__all__'
+
+# Company Posts Block unblok and Delete un delete
+class CompanyPostBlockUnblock(ModelSerializer):
+    class Meta:
+        model = Post
+        fields= ['is_blocked','is_deleted']

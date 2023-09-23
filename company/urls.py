@@ -13,5 +13,7 @@ urlpatterns = [
     path('companyPostlistCreateapiview/', CompanyPostListCreateAPIView.as_view(), name='CompanyPostListCreateAPIView'),
     path('listofcompanypost/<int:id>/', Listofcompanypost.as_view(), name='Listofcompanypost'),
     path('companypostdetails/<int:id>/', CompanyPostDetails.as_view(), name='CompanyPostDetails'),
+    path('companypostupdate/<int:id>/', CompanyPostUpdate.as_view(), name='CompanyPostUpdate'),
+    path('companypostbolckUnblock/<int:id>/', CompanyPostBolckUnblock.as_view(), name='CompanyPostBolckUnblock'),
     path('seeimages/', views.seeimages, name='seeimages'),
 ]

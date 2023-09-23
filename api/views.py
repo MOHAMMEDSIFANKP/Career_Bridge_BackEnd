@@ -81,10 +81,12 @@ def activate(request, uidb64, token):
         user.is_active = True
         user.save()
         message = 'Congrats! Account activated!'
+        token = create_jwt_pair_tokens(user)
+        Baseurl = config('BaseUrl')
         if user.role == 'user':
-            redirect_url = 'http://localhost:5173/login' + '?message=' + message
+           redirect_url = Baseurl + 'login' + '?message=' + message + '&token=' + str(token)
         else:
-            redirect_url = 'http://localhost:5173/login' + '?message=' + message
+            redirect_url = Baseurl + 'login' + '?message=' + message + '&token=' + str(token)
             
     else:
         message = 'Invalid activation link'

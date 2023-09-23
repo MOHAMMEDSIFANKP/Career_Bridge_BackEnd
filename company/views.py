@@ -4,21 +4,15 @@ from .models import *
 from django.shortcuts import render
 from api.tasks import *
 
-from rest_framework.generics import RetrieveUpdateDestroyAPIView,CreateAPIView,ListCreateAPIView,ListAPIView
+from rest_framework.generics import RetrieveUpdateDestroyAPIView,CreateAPIView,ListCreateAPIView,ListAPIView,UpdateAPIView
 from rest_framework.views import APIView
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.pagination import PageNumberPagination
 from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework.filters import SearchFilter
 
-from django.core.mail import EmailMessage
-from django.utils.http import urlsafe_base64_encode
-from django.utils.encoding import force_bytes
-from django.template.loader import render_to_string
-from django.contrib.sites.shortcuts import get_current_site
-from django.utils.http import urlsafe_base64_decode
-from django.contrib.auth.tokens import default_token_generator
 from django.contrib.auth import authenticate
 
 
@@ -132,11 +126,16 @@ class CompanyDetails(RetrieveUpdateDestroyAPIView):
     serializer_class = CompanyInfoSerializer
     lookup_field = 'id'
 
-
 # Company Post
 class CompanyPostListCreateAPIView(ListCreateAPIView):
     queryset = Post.objects.all()
     serializer_class = CompanyPost
+
+# Company Post Updation
+class CompanyPostUpdate(UpdateAPIView):
+    queryset = Post.objects.all()
+    serializer_class = CompanyPost
+    lookup_field = 'id'
 
 # Company Deaits 
 class CompanyPostDetails(RetrieveUpdateDestroyAPIView):
@@ -144,9 +143,17 @@ class CompanyPostDetails(RetrieveUpdateDestroyAPIView):
     serializer_class = CompanyPostRetrieveSerilizer
     lookup_field = 'id'
 
+# Company Post Updation
+class CompanyPostBolckUnblock(UpdateAPIView):
+    queryset = Post.objects.all()
+    serializer_class = CompanyPostBlockUnblock
+    lookup_field = 'id'
+
 # Companyside Post listing 
 class Listofcompanypost(ListAPIView):
     serializer_class = CompanyPostRetrieveSerilizer
+    filter_backends = [SearchFilter]
+    search_fields = ['job_category__field_name', 'Jobtitle__title_name', 'skills__skills'] 
     def get_queryset(self):
         company_info_id = self.kwargs['id']
         return Post.objects.filter(companyinfo_id=company_info_id)
