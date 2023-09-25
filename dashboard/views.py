@@ -1,6 +1,7 @@
 from rest_framework_simplejwt.views import TokenObtainPairView
-from rest_framework.generics import ListCreateAPIView,RetrieveUpdateDestroyAPIView
+from rest_framework.generics import ListCreateAPIView,RetrieveUpdateDestroyAPIView,ListAPIView,UpdateAPIView
 from .models import *
+from api.models import *
 from rest_framework.filters import SearchFilter
 from django.core.exceptions import ValidationError
 from rest_framework import serializers
@@ -81,4 +82,26 @@ class SkillsListCreateAPIView(ListCreateAPIView):
 class SkillsDetails(RetrieveUpdateDestroyAPIView):
     queryset = Skills.objects.all()
     serializer_class = SkillsSerializers
+    lookup_field = 'id'
+
+# User List
+class UsersList(ListAPIView):
+    serializer_class = UsersListSerializer
+    queryset = User.objects.all().exclude(is_superuser=True)
+
+# User Block Unblock
+class UserBlockUnblock(UpdateAPIView):
+    queryset = User.objects.all().exclude(is_superuser=True)
+    serializer_class = BlockUnblockSerializer
+    lookup_field = 'id'
+
+# Company List Sealizer
+class CompanyList(ListAPIView):
+    queryset = CompanyInfo.objects.all()
+    serializer_class = CompanyListSerializer
+
+# Company Verify and Block
+class VerifyAndBlock(UpdateAPIView):
+    queryset = CompanyInfo.objects.all()
+    serializer_class = CompanyVerifyBlockSerializer
     lookup_field = 'id'

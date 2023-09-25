@@ -2,8 +2,9 @@ from .serializers import *
 from .models import User
 from decouple import config
 from .tasks import *
-
-from rest_framework.generics import RetrieveUpdateDestroyAPIView,CreateAPIView, ListCreateAPIView
+from company.models import *
+from company.serializers import *
+from rest_framework.generics import RetrieveUpdateDestroyAPIView,CreateAPIView, ListCreateAPIView,ListAPIView
 from rest_framework.views import APIView
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework.filters import SearchFilter
@@ -130,7 +131,7 @@ def CheckuserInfo(id):
         return result.id
     except UserInfo.DoesNotExist:
         return None
-    
+# Create new token
 def create_jwt_pair_tokens(user):
     userInfoId = CheckuserInfo(user.id)
     
@@ -154,6 +155,7 @@ def create_jwt_pair_tokens(user):
         "refresh": refresh_token,
     }
 
+# Forgot password
 class Forgotpassword(APIView):
     def post(self, request):
         email =  request.data.get('email')
@@ -171,6 +173,7 @@ class Forgotpassword(APIView):
             return Response({'status': 'error', 'msg': 'Invalid Email'})
 
 
+# Forgot password password changeing section
 @api_view(['GET'])
 def resetpassword(request, uidb64):
     try:
@@ -208,37 +211,53 @@ class UserRestpassword(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
+# User Details
 class UserDetails(RetrieveUpdateDestroyAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
     lookup_field = 'id'
 
+# UserInfo list and creating
 class UserInfoListCreateAPIView(ListCreateAPIView):
     queryset = UserInfo.objects.all()
     serializer_class = UserInfoSerializer
 
+# User info Details
 class UserInfoDetails(RetrieveUpdateDestroyAPIView):
     queryset = UserInfo.objects.all()
     serializer_class = UserInfoSerializer
     lookup_field = 'id'
 
+# Experiece Create and list
 class ExperienceListCreateAPIView(ListCreateAPIView):
     queryset = Experience.objects.all()
     serializer_class = ExperienceSerializer
 
+# Experience Details
 class ExperienceDetails(RetrieveUpdateDestroyAPIView):
     queryset = Experience.objects.all()
     serializer_class = ExperienceSerializer
     lookup_field = 'id'
 
+# Education Create and list
 class EducationListCreateAPIView(ListCreateAPIView):
     queryset = Education.objects.all()
     serializer_class = EducationSerializer
     lookup_field = 'id'
 
+# Education Details
 class EducationDetails(RetrieveUpdateDestroyAPIView):
     queryset = Education.objects.all()
     serializer_class = EducationSerializer
     lookup_field = 'id'
 
-    
+# UserInfo related Jobs Post
+class UserRelatedJobs(ListAPIView):
+    serializer_class = CompanyPostRetrieveSerilizer
+    def get_queryset(self):
+        user_info_id = self.kwargs['id']
+        user_info = UserInfo.objects.get(id=user_info_id) 
+        user_skills = user_info.skills.all()  
+        queryset = Post.objects.filter(skills__in=user_skills,companyinfo__is_verify=True)
+        return queryset
+

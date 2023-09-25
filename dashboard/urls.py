@@ -17,6 +17,12 @@ urlpatterns = [
     
     path('SkillsListCreateAPIView/',SkillsListCreateAPIView.as_view(), name="SkillsListCreateAPIView"),
     path('SkillsDetails/<int:id>/',SkillsDetails.as_view(), name="SkillsDetails"),
+    
+    path('userslist/',UsersList.as_view(), name="UsersList"),
+    path('userblockunblock/<int:id>/',UserBlockUnblock.as_view(), name="UserBlockUnblock"),
+    
+    path('companylist/',CompanyList.as_view(), name="CompanyList"),
+    path('verifyandblock/<int:id>/',VerifyAndBlock.as_view(), name="VerifyAndBlock"),
 
 
 ]

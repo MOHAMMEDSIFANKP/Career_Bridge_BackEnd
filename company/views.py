@@ -152,8 +152,6 @@ class CompanyPostBolckUnblock(UpdateAPIView):
 # Companyside Post listing 
 class Listofcompanypost(ListAPIView):
     serializer_class = CompanyPostRetrieveSerilizer
-    filter_backends = [SearchFilter]
-    search_fields = ['job_category__field_name', 'Jobtitle__title_name', 'skills__skills'] 
     def get_queryset(self):
         company_info_id = self.kwargs['id']
         return Post.objects.filter(companyinfo_id=company_info_id)

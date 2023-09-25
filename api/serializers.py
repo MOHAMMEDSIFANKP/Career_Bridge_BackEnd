@@ -7,6 +7,7 @@ from django.shortcuts import get_object_or_404
 from rest_framework.exceptions import ValidationError
 import re
 from company.models import CompanyInfo
+from dashboard.serializers import *
 # User Account 
 class UserSerializer(ModelSerializer):
     class Meta:

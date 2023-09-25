@@ -29,4 +29,6 @@ urlpatterns = [
     
     path('EducationListCreateAPIView/', EducationListCreateAPIView.as_view(), name='EducationListCreateAPIView'),
     path('EducationDetails/<int:id>/', EducationDetails.as_view(), name='EducationDetails'),
+    
+    path('userrelatedjobs/<int:id>/', UserRelatedJobs.as_view(), name='UserRelatedJobs'),
 ]

@@ -1,7 +1,9 @@
 from rest_framework.serializers import ModelSerializer
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from .models import *
-
+from api.models import *
+from api.serializers import *
+from company.models import *
 class JobFieldSerializers(ModelSerializer):
     class Meta:
         model = JobField
@@ -32,3 +34,29 @@ class AdminTokenObtainPairSerializer(TokenObtainPairSerializer):
         token['is_admin'] = user.is_superuser
 
         return token
+
+# UserList Serializer
+class UsersListSerializer(ModelSerializer):
+    class Meta:
+        model = User
+        fields = '__all__'
+
+# Block UnBlock Serializer
+class BlockUnblockSerializer(ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['is_active']
+
+# CompanyLIst Serializer
+class CompanyListSerializer(ModelSerializer):
+    userId = UsersListSerializer()
+    class Meta:
+        model = CompanyInfo
+        fields = '__all__'
+
+# Company Verify Block Serializer
+class CompanyVerifyBlockSerializer(ModelSerializer):
+    class Meta:
+        model = CompanyInfo
+        fields = [
+            'is_verify']
