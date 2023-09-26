@@ -87,7 +87,7 @@ class SkillsDetails(RetrieveUpdateDestroyAPIView):
 # User List
 class UsersList(ListAPIView):
     serializer_class = UsersListSerializer
-    queryset = User.objects.all().exclude(is_superuser=True)
+    queryset = User.objects.all().exclude(is_superuser=True).order_by('-id')
 
 # User Block Unblock
 class UserBlockUnblock(UpdateAPIView):
@@ -97,11 +97,22 @@ class UserBlockUnblock(UpdateAPIView):
 
 # Company List Sealizer
 class CompanyList(ListAPIView):
-    queryset = CompanyInfo.objects.all()
+    queryset = CompanyInfo.objects.all().order_by('-created_at')
     serializer_class = CompanyListSerializer
 
 # Company Verify and Block
 class VerifyAndBlock(UpdateAPIView):
     queryset = CompanyInfo.objects.all()
     serializer_class = CompanyVerifyBlockSerializer
+    lookup_field = 'id'
+
+# Notification
+class AdminNotification(ListAPIView):
+    queryset = Notification.objects.filter(user__role='admin').order_by('-timestamp')
+    serializer_class = NoficationSerializer
+
+# Notification read
+class AdminNotificationRead(RetrieveUpdateDestroyAPIView):
+    queryset = Notification.objects.filter(user__role='admin')
+    serializer_class = NoficationSerializer
     lookup_field = 'id'

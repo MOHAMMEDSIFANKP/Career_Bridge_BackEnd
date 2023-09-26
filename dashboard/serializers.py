@@ -58,5 +58,10 @@ class CompanyListSerializer(ModelSerializer):
 class CompanyVerifyBlockSerializer(ModelSerializer):
     class Meta:
         model = CompanyInfo
-        fields = [
-            'is_verify']
+        fields = ['is_verify']
+
+# Notification Serializer
+class NoficationSerializer(ModelSerializer):
+    class Meta:
+        model = Notification
+        fields = '__all__'

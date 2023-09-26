@@ -112,7 +112,13 @@ class CompanyInfoListCreateAPIView(ListCreateAPIView):
     def perform_create(self, serializer):
         userid = serializer.validated_data.get('userId')
         existing_company_info = CompanyInfo.objects.filter(userId=userid).first()
-
+        recipients = User.objects.filter(is_superuser=True)
+        company_name = serializer.validated_data.get('company_name')
+        message = f'New Company "{company_name}" is Registered, Please verify'
+        path = 'Company'
+        for recipient in recipients:
+            notification = Notification.objects.create(message=message, path=path)
+            notification.user.add(recipient)
         if existing_company_info:
             return Response(
                 {"detail": "CompanyInfo with this userid already exists."},

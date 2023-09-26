@@ -16,6 +16,7 @@ class CustomUserManager(BaseUserManager):
         extra_fields.setdefault("is_active", True)
         extra_fields.setdefault("is_staff", True)
         extra_fields.setdefault("is_superuser", True)
+        extra_fields.setdefault("role", 'admin')
 
         if extra_fields.get("is_active") is not True:
             raise ValueError("Superuser must have is_active=True.")
@@ -78,4 +79,12 @@ class UserInfo(models.Model):
     state = models.CharField(max_length=100,null=True)
     zipcode  = models.IntegerField(null=True)
     bio = models.TextField(null=True, default="Add bio")
+    created_at = models.DateTimeField(auto_now_add=True)
 
+
+class Notification(models.Model):
+    user = models.ManyToManyField(User)
+    path = models.CharField(max_length=100,default='/')
+    message = models.TextField()
+    timestamp = models.DateTimeField(auto_now_add=True)
+    is_read = models.BooleanField(default=False) 

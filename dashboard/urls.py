@@ -23,6 +23,9 @@ urlpatterns = [
     
     path('companylist/',CompanyList.as_view(), name="CompanyList"),
     path('verifyandblock/<int:id>/',VerifyAndBlock.as_view(), name="VerifyAndBlock"),
+    
+    path('adminnotification/',AdminNotification.as_view(), name="AdminNotification"),
+    path('adminnotificationread/<int:id>/',AdminNotificationRead.as_view(), name="AdminNotificationRead"),
 
 
 ]

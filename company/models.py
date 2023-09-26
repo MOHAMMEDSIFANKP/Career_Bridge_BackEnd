@@ -18,7 +18,7 @@ class CompanyInfo(models.Model):
     city = models.CharField(max_length=100,null=True)
     zipcode = models.BigIntegerField(null=True)
     is_verify = models.BooleanField(default=False)
-
+    created_at = models.DateTimeField(auto_now_add=True)
 class Post(models.Model):
     WORK_TIME_CHOICES = [
     ('short-term', 'short-term'),
