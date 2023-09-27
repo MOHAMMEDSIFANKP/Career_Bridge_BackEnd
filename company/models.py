@@ -19,6 +19,7 @@ class CompanyInfo(models.Model):
     zipcode = models.BigIntegerField(null=True)
     is_verify = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
+
 class Post(models.Model):
     WORK_TIME_CHOICES = [
     ('short-term', 'short-term'),
@@ -41,4 +42,12 @@ class Post(models.Model):
     created_at = models.DateTimeField(auto_now_add=True,null=True)
     is_blocked = models.BooleanField(default=False)
     is_deleted = models.BooleanField(default=False)
+
+class ApplyJobs(models.Model):
+    comanyInfo = models.ForeignKey(CompanyInfo,on_delete=models.CASCADE)
+    userInfo = models.ForeignKey(UserInfo,on_delete=models.CASCADE)
+    Post = models.ForeignKey(Post,on_delete=models.CASCADE)
+    accepted = models.BooleanField(default=False)
+    rejected = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True,null=True)
 

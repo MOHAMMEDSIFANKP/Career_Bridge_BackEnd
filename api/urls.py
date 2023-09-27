@@ -31,4 +31,6 @@ urlpatterns = [
     path('EducationDetails/<int:id>/', EducationDetails.as_view(), name='EducationDetails'),
     
     path('userrelatedjobs/<int:id>/', UserRelatedJobs.as_view(), name='UserRelatedJobs'),
+    
+    path('notificationconut/<int:id>/', views.Notification_count, name='Notification_count'),
 ]

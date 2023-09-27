@@ -254,10 +254,22 @@ class EducationDetails(RetrieveUpdateDestroyAPIView):
 # UserInfo related Jobs Post
 class UserRelatedJobs(ListAPIView):
     serializer_class = CompanyPostRetrieveSerilizer
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+        user_info_id = self.kwargs['id']
+        user_info = UserInfo.objects.get(id=user_info_id)
+        context['user_info'] = user_info 
+        return context
     def get_queryset(self):
         user_info_id = self.kwargs['id']
         user_info = UserInfo.objects.get(id=user_info_id) 
         user_skills = user_info.skills.all()  
-        queryset = Post.objects.filter(skills__in=user_skills,companyinfo__is_verify=True)
+        queryset = Post.objects.filter(skills__in=user_skills,companyinfo__is_verify=True).distinct()
         return queryset
+from django.http import JsonResponse
 
+# Notification cout
+def Notification_count(request, id):
+    count = Notification.objects.filter(user__id=id,is_read=False).count()
+    response_data = {'count': count}
+    return JsonResponse(response_data)

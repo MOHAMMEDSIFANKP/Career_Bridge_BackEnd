@@ -116,3 +116,4 @@ class AdminNotificationRead(RetrieveUpdateDestroyAPIView):
     queryset = Notification.objects.filter(user__role='admin')
     serializer_class = NoficationSerializer
     lookup_field = 'id'
+

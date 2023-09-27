@@ -12,7 +12,6 @@ from rest_framework import status
 from rest_framework.pagination import PageNumberPagination
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.filters import SearchFilter
-
 from django.contrib.auth import authenticate
 
 
@@ -117,8 +116,7 @@ class CompanyInfoListCreateAPIView(ListCreateAPIView):
         message = f'New Company "{company_name}" is Registered, Please verify'
         path = 'Company'
         for recipient in recipients:
-            notification = Notification.objects.create(message=message, path=path)
-            notification.user.add(recipient)
+            Notification.objects.create(user=recipient,message=message, path=path)
         if existing_company_info:
             return Response(
                 {"detail": "CompanyInfo with this userid already exists."},
@@ -158,9 +156,47 @@ class CompanyPostBolckUnblock(UpdateAPIView):
 # Companyside Post listing 
 class Listofcompanypost(ListAPIView):
     serializer_class = CompanyPostRetrieveSerilizer
+    pagination_class = None
+
     def get_queryset(self):
         company_info_id = self.kwargs['id']
         return Post.objects.filter(companyinfo_id=company_info_id)
 
+
+# User Apply for the Job
+class ApplyJobsCreation(CreateAPIView):
+    queryset = ApplyJobs.objects.all()
+    serializer_class = ApplyJobSerializer
+
+    def perform_create(self, serializer):
+        user_info = serializer.validated_data.get('userInfo')
+        post = serializer.validated_data.get('Post')
+
+        if ApplyJobs.objects.filter(userInfo=user_info.id, Post=post.id).exists():
+            return Response(
+                {"error": "You have already applied for this job."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        serializer.save()
+        job_name = post.Jobtitle.title_name
+        company_id = post.companyinfo.userId
+        user_id = user_info.userId
+
+        if company_id:
+            message = f'{user_id.first_name} {user_id.last_name} applied for the position "{job_name}"'
+            path = '/company/notifications/'
+            Notification.objects.create(user=company_id, message=message, path=path)
+
+        if user_id:
+            message = f'Congratulations, {user_id.first_name} {user_id.last_name}! You have successfully applied for the "{job_name}" position.'
+            path = '/user/notifications/'
+            Notification.objects.create(user=user_id, message=message, path=path)
+
+class CompanyApplyPostList(ListAPIView):
+    serializer_class = ApplyJobSListerializer
+    def get_queryset(self):
+        company_info_id = self.kwargs['id']
+        return ApplyJobs.objects.filter(comanyInfo=company_info_id)
 def seeimages(request):
     return render (request, 'company/email_template.html')

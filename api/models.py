@@ -83,8 +83,8 @@ class UserInfo(models.Model):
 
 
 class Notification(models.Model):
-    user = models.ManyToManyField(User)
+    user = models.ForeignKey(User,on_delete=models.CASCADE)
     path = models.CharField(max_length=100,default='/')
     message = models.TextField()
     timestamp = models.DateTimeField(auto_now_add=True)
-    is_read = models.BooleanField(default=False) 
+    is_read = models.BooleanField(default=False)

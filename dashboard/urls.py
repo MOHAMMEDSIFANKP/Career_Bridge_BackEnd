@@ -26,6 +26,6 @@ urlpatterns = [
     
     path('adminnotification/',AdminNotification.as_view(), name="AdminNotification"),
     path('adminnotificationread/<int:id>/',AdminNotificationRead.as_view(), name="AdminNotificationRead"),
-
+    
 
 ]

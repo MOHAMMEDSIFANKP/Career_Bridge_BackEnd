@@ -4,27 +4,31 @@ from .models import *
 from api.models import *
 from api.serializers import *
 from company.models import *
+# Crud For JobList
 class JobFieldSerializers(ModelSerializer):
     class Meta:
         model = JobField
         fields = ['id','field_name']
 
+# Crud for Jotitle
 class JobTitleSerializers(ModelSerializer):
     class Meta:
         model = JobTitle
         fields = ['id','title_name', 'field']
 
-
+# Crud for language
 class LanguagesSerializers(ModelSerializer):
     class Meta:
         model = Languages
         fields = ['language']
 
+# Crud for Skills
 class SkillsSerializers(ModelSerializer):
     class Meta:
         model = Skills
         fields = ['id','skills']
 
+# Admin Authendication List
 class AdminTokenObtainPairSerializer(TokenObtainPairSerializer):
     @classmethod
     def get_token(cls, user):
@@ -65,3 +69,4 @@ class NoficationSerializer(ModelSerializer):
     class Meta:
         model = Notification
         fields = '__all__'
+
