@@ -221,6 +221,7 @@ class UserDetails(RetrieveUpdateDestroyAPIView):
 class UserInfoListCreateAPIView(ListCreateAPIView):
     queryset = UserInfo.objects.all()
     serializer_class = UserInfoSerializer
+    pagination_class = None
 
 # User info Details
 class UserInfoDetails(RetrieveUpdateDestroyAPIView):
@@ -232,6 +233,7 @@ class UserInfoDetails(RetrieveUpdateDestroyAPIView):
 class ExperienceListCreateAPIView(ListCreateAPIView):
     queryset = Experience.objects.all()
     serializer_class = ExperienceSerializer
+    pagination_class = None
 
 # Experience Details
 class ExperienceDetails(RetrieveUpdateDestroyAPIView):
@@ -254,6 +256,7 @@ class EducationDetails(RetrieveUpdateDestroyAPIView):
 # UserInfo related Jobs Post
 class UserRelatedJobs(ListAPIView):
     serializer_class = CompanyPostRetrieveSerilizer
+    pagination_class = None
     def get_serializer_context(self):
         context = super().get_serializer_context()
         user_info_id = self.kwargs['id']

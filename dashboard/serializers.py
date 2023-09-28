@@ -43,7 +43,7 @@ class AdminTokenObtainPairSerializer(TokenObtainPairSerializer):
 class UsersListSerializer(ModelSerializer):
     class Meta:
         model = User
-        fields = '__all__'
+        exclude = ('password',)
 
 # Block UnBlock Serializer
 class BlockUnblockSerializer(ModelSerializer):
@@ -64,9 +64,24 @@ class CompanyVerifyBlockSerializer(ModelSerializer):
         model = CompanyInfo
         fields = ['is_verify']
 
+# All Posts Lising
+class ListAllPostSerializer(ModelSerializer):
+    companyinfo = CompanyListSerializer()
+    job_category = JobFieldSerializers()
+    Jobtitle = JobTitleSerializers()
+    skills = SkillsSerializers(many=True)
+    class Meta:
+        model = Post
+        fields = '__all__'
+
+# Blocked Unblock
+class PostBlockUnblockserializer(ModelSerializer):
+    class Meta:
+        model = Post
+        fields = ['is_blocked']
+        
 # Notification Serializer
 class NoficationSerializer(ModelSerializer):
     class Meta:
         model = Notification
         fields = '__all__'
-

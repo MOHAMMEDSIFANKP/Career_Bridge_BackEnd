@@ -107,6 +107,7 @@ class CompanyUserDetails(RetrieveUpdateDestroyAPIView):
 class CompanyInfoListCreateAPIView(ListCreateAPIView):
     queryset = CompanyInfo.objects.all()
     serializer_class = CompanyInfoSerializer
+    pagination_class = None
 
     def perform_create(self, serializer):
         userid = serializer.validated_data.get('userId')
@@ -134,6 +135,7 @@ class CompanyDetails(RetrieveUpdateDestroyAPIView):
 class CompanyPostListCreateAPIView(ListCreateAPIView):
     queryset = Post.objects.all()
     serializer_class = CompanyPost
+    pagination_class = None
 
 # Company Post Updation
 class CompanyPostUpdate(UpdateAPIView):
@@ -156,11 +158,35 @@ class CompanyPostBolckUnblock(UpdateAPIView):
 # Companyside Post listing 
 class Listofcompanypost(ListAPIView):
     serializer_class = CompanyPostRetrieveSerilizer
-    pagination_class = None
+    filter_backends = [SearchFilter]
+    search_fields = ['companyinfo__company_name','job_category__field_name','Jobtitle__title_name','skills__skills','work_time','level_of_experience']
+    pagination_class = PageNumberPagination
 
     def get_queryset(self):
         company_info_id = self.kwargs['id']
-        return Post.objects.filter(companyinfo_id=company_info_id)
+        return Post.objects.filter(companyinfo_id=company_info_id,is_blocked=False,is_deleted=False).order_by('-created_at')
+
+# Companyside Post listing 
+class ListofcompanypostArchived(ListAPIView):
+    serializer_class = CompanyPostRetrieveSerilizer
+    filter_backends = [SearchFilter]
+    search_fields = ['companyinfo__company_name','job_category__field_name','Jobtitle__title_name','skills__skills','work_time','level_of_experience']
+    pagination_class = PageNumberPagination
+
+    def get_queryset(self):
+        company_info_id = self.kwargs['id']
+        return Post.objects.filter(companyinfo_id=company_info_id,is_deleted=True).order_by('-created_at')
+
+# Companyside Post listing 
+class ListofcompanypostBlocked(ListAPIView):
+    serializer_class = CompanyPostRetrieveSerilizer
+    filter_backends = [SearchFilter]
+    search_fields = ['companyinfo__company_name','job_category__field_name','Jobtitle__title_name','skills__skills','work_time','level_of_experience']
+    pagination_class = PageNumberPagination
+
+    def get_queryset(self):
+        company_info_id = self.kwargs['id']
+        return Post.objects.filter(companyinfo_id=company_info_id,is_blocked=True).order_by('-created_at')
 
 
 # User Apply for the Job
@@ -195,6 +221,7 @@ class ApplyJobsCreation(CreateAPIView):
 
 class CompanyApplyPostList(ListAPIView):
     serializer_class = ApplyJobSListerializer
+    pagination_class = None
     def get_queryset(self):
         company_info_id = self.kwargs['id']
         return ApplyJobs.objects.filter(comanyInfo=company_info_id)
