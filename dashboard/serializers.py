@@ -8,7 +8,7 @@ from company.models import *
 class JobFieldSerializers(ModelSerializer):
     class Meta:
         model = JobField
-        fields = ['id','field_name']
+        fields = ['id','field_name','is_deleted']
 
 # Crud for Jotitle
 class JobTitleSerializers(ModelSerializer):

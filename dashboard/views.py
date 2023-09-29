@@ -17,17 +17,34 @@ class AdminTokenObtainPairView(TokenObtainPairView):
 
 # Job Field Crud operations
 class JobFieldListAndCreater(ListCreateAPIView):
-    queryset = JobField.objects.all()
+    queryset = JobField.objects.all().exclude(is_deleted=True)
     serializer_class = JobFieldSerializers
     pagination_class = None
-    filter_backends = [SearchFilter]
-    search_fields = ['field_name']
+
 
     def perform_create(self, serializer):
         field_name = self.request.data.get('field_name')
         if JobField.objects.filter(field_name=field_name).exists():
             raise serializers.ValidationError("A JobField with this name already exists.")
         super().perform_create(serializer)
+
+# List All JobCategory
+class JobFieldListAndCreaterPagination(ListAPIView):
+    serializer_class = JobFieldSerializers
+    filter_backends = [SearchFilter]
+    search_fields = ['field_name']
+    pagination_class = PageNumberPagination
+    pagination_class.page_size = 8
+    queryset = JobField.objects.all().exclude(is_deleted=True)
+
+# List All Deleted JobCategory
+class JobFieldListDeleted(ListAPIView):
+    serializer_class = JobFieldSerializers
+    filter_backends = [SearchFilter]
+    search_fields = ['field_name']
+    pagination_class = PageNumberPagination
+    pagination_class.page_size = 8
+    queryset = JobField.objects.all().exclude(is_deleted=False)
 
 class JobFieldDetails(RetrieveUpdateDestroyAPIView):
     queryset = JobField.objects.all()
@@ -47,6 +64,7 @@ class JobTitledListAndCreater(ListCreateAPIView):
         if JobTitle.objects.filter(title_name=title_name).exists():
             raise serializers.ValidationError("A JobTitle with this name already exists.")
         super().perform_create(serializer)
+
 
 class JobTitledDetails(RetrieveUpdateDestroyAPIView):
     queryset = JobTitle.objects.all()
@@ -181,6 +199,7 @@ class PostBlockedUnblocked(UpdateAPIView):
     serializer_class = PostBlockUnblockserializer
     queryset = Post.objects.all().exclude(companyinfo__is_verify=False)
     lookup_field = 'id'
+
 # Notification
 class AdminNotification(ListAPIView):
     queryset = Notification.objects.filter(user__role='admin').order_by('-timestamp')

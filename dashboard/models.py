@@ -2,6 +2,7 @@ from django.db import models
 
 class JobField(models.Model):
     field_name = models.CharField(max_length=255)
+    is_deleted = models.BooleanField(default=False)
 
     def __str__(self):
         return self.field_name
@@ -9,6 +10,7 @@ class JobField(models.Model):
 class JobTitle(models.Model):
     title_name = models.CharField(max_length=255)
     field = models.ForeignKey(JobField, on_delete=models.CASCADE)
+    is_deleted = models.BooleanField(default=False)
 
     def __str__(self):
         return self.title_name
@@ -23,3 +25,4 @@ class Languages(models.Model):
 # Skills
 class Skills(models.Model):
     skills = models.CharField(max_length=50)
+    is_deleted = models.BooleanField(default=False)

@@ -7,6 +7,8 @@ urlpatterns = [
    path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
 
    path('JobFieldListAndCreater/',JobFieldListAndCreater.as_view(), name="JobFieldList"),
+   path('jobfieldlistandcreaterpagination/',JobFieldListAndCreaterPagination.as_view(), name="JobFieldListAndCreaterPagination"),
+   path('jobfieldlistdeleted/',JobFieldListDeleted.as_view(), name="JobFieldListDeleted"),
    path('JobFieldDetails/<int:id>/',JobFieldDetails.as_view(), name="JobFieldDetails"),
 
    path('JobTitledListAndCreater/',JobTitledListAndCreater.as_view(), name="JobTitledListAndCreater"),
