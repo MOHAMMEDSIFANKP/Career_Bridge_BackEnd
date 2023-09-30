@@ -35,7 +35,7 @@ class JobFieldListAndCreaterPagination(ListAPIView):
     search_fields = ['field_name']
     pagination_class = PageNumberPagination
     pagination_class.page_size = 8
-    queryset = JobField.objects.all().exclude(is_deleted=True)
+    queryset = JobField.objects.all().exclude(is_deleted=True).order_by('-id')
 
 # List All Deleted JobCategory
 class JobFieldListDeleted(ListAPIView):
@@ -44,7 +44,7 @@ class JobFieldListDeleted(ListAPIView):
     search_fields = ['field_name']
     pagination_class = PageNumberPagination
     pagination_class.page_size = 8
-    queryset = JobField.objects.all().exclude(is_deleted=False)
+    queryset = JobField.objects.all().exclude(is_deleted=False).order_by('-id')
 
 class JobFieldDetails(RetrieveUpdateDestroyAPIView):
     queryset = JobField.objects.all()
@@ -53,7 +53,7 @@ class JobFieldDetails(RetrieveUpdateDestroyAPIView):
 
 # Job Title Crud operations
 class JobTitledListAndCreater(ListCreateAPIView):
-    queryset = JobTitle.objects.all()
+    queryset = JobTitle.objects.all().exclude(is_deleted=True)
     serializer_class = JobTitleSerializers
     pagination_class = None
     filter_backends = [SearchFilter]
@@ -64,6 +64,22 @@ class JobTitledListAndCreater(ListCreateAPIView):
         if JobTitle.objects.filter(title_name=title_name).exists():
             raise serializers.ValidationError("A JobTitle with this name already exists.")
         super().perform_create(serializer)
+
+class JobTitledListAndpagiantions(ListAPIView):
+    queryset = JobTitle.objects.all().exclude(is_deleted=True).order_by('-id')
+    serializer_class = JobTitleSerializers
+    pagination_class = PageNumberPagination
+    pagination_class.page_size = 8
+    filter_backends = [SearchFilter]
+    search_fields = ['title_name']
+
+class JobTitledBlockedList(ListAPIView):
+    queryset = JobTitle.objects.all().exclude(is_deleted=False).order_by('-id')
+    serializer_class = JobTitleSerializers
+    pagination_class = PageNumberPagination
+    pagination_class.page_size = 8
+    filter_backends = [SearchFilter]
+    search_fields = ['title_name']
 
 
 class JobTitledDetails(RetrieveUpdateDestroyAPIView):
@@ -90,8 +106,9 @@ class LanguagesdDetails(RetrieveUpdateDestroyAPIView):
     serializer_class = LanguagesSerializers
     lookup_field = 'id'
 
+# Skills list and create
 class SkillsListCreateAPIView(ListCreateAPIView):
-    queryset = Skills.objects.all()
+    queryset = Skills.objects.all().exclude(is_deleted=True).order_by('-id')
     serializer_class = SkillsSerializers
     pagination_class = None
     filter_backends = [SearchFilter]
@@ -102,6 +119,24 @@ class SkillsListCreateAPIView(ListCreateAPIView):
         if Skills.objects.filter(skills = skill).exists():
             raise serializers.ValidationError("A Skill with this name already exists.")
         return super().perform_create(serializer)
+
+# All skills list
+class SkillsList(ListAPIView):
+    queryset = Skills.objects.all().exclude(is_deleted=True).order_by('-id')
+    serializer_class = SkillsSerializers
+    pagination_class = PageNumberPagination
+    pagination_class.page = 8
+    filter_backends = [SearchFilter]
+    search_fields = ['skills']
+
+# Blocked skills list
+class BlockedSkillsList(ListAPIView):
+    queryset = Skills.objects.all().exclude(is_deleted=False).order_by('-id')
+    serializer_class = SkillsSerializers
+    pagination_class = PageNumberPagination
+    pagination_class.page = 8
+    filter_backends = [SearchFilter]
+    search_fields = ['skills']
     
 class SkillsDetails(RetrieveUpdateDestroyAPIView):
     queryset = Skills.objects.all()

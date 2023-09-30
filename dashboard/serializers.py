@@ -14,7 +14,7 @@ class JobFieldSerializers(ModelSerializer):
 class JobTitleSerializers(ModelSerializer):
     class Meta:
         model = JobTitle
-        fields = ['id','title_name', 'field']
+        fields = ['id','title_name', 'field','is_deleted']
 
 # Crud for language
 class LanguagesSerializers(ModelSerializer):
@@ -26,7 +26,7 @@ class LanguagesSerializers(ModelSerializer):
 class SkillsSerializers(ModelSerializer):
     class Meta:
         model = Skills
-        fields = ['id','skills']
+        fields = ['id','skills','is_deleted']
 
 # Admin Authendication List
 class AdminTokenObtainPairSerializer(TokenObtainPairSerializer):
