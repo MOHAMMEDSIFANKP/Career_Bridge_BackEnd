@@ -20,6 +20,14 @@ urlpatterns = [
     
     path('applyjobscreation/', ApplyJobsCreation.as_view(), name='ApplyJobsCreation'),
     path('companyapplypostList/<int:id>/', CompanyApplyPostList.as_view(), name='CompanyApplyPostList'),
+    path('pendingapplyJob/<int:id>/', Pending_ApplyJob.as_view(), name='Pending_ApplyJob'),
+    path('acceptedapplyJob/<int:id>/', Accepted_ApplyJob.as_view(), name='Accepted_ApplyJob'),
+    path('rejectedapplyJob/<int:id>/', Rejected_ApplyJob.as_view(), name='Rejected_ApplyJob'),
+    path('Accept_or_rejected_ApplyJob/<int:id>/', Accept_or_rejected_ApplyJob.as_view(), name='Accept_or_rejected_ApplyJob'),
+    path('scheduledate/<int:id>/', ScheduleDate.as_view(), name='ScheduleDate'),
+    
+    path('CompanyNotification/<int:id>/', CompanyNotification.as_view(), name='CompanyNotification'),
+    path('CompanyHomeListing/', CompanyHomeListing.as_view(), name='CompanyHomeListing'),
     
     path('seeimages/', views.seeimages, name='seeimages'),
 ]

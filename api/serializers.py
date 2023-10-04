@@ -202,3 +202,23 @@ class UpdateUseAccountSerializer(ModelSerializer):
         model = User
         fields = ['first_name','last_name']
 
+from django.utils import timezone
+# ApplyJob in UserSide
+class UserApplyJobSListerializer(ModelSerializer):
+    Post = ListAllPostSerializer()
+    days = serializers.SerializerMethodField()
+    class Meta:
+        model = ApplyJobs
+        fields = '__all__'
+
+    def get_days(self, obj):
+        now = timezone.now()
+        delta = now - obj.created_at
+        return delta.days
+
+# User Notification
+class UserNotificationSerializer(ModelSerializer):
+    class Meta:
+        model = Notification
+        fields = '__all__'
+

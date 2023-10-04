@@ -9,10 +9,12 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework_simplejwt.tokens import RefreshToken
 
+# Profile image update
 class UserProfileUpdate(UpdateAPIView):
     queryset = User.objects.all()
     serializer_class = UserProfileUpdateSerializer
     lookup_field = 'id'
+# Update is Compleated
 class Is_compleatedUpdate(UpdateAPIView):
     queryset = User.objects.all()
     serializer_class = IsCompletedUpdateSerializer

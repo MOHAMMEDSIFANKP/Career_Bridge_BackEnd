@@ -49,5 +49,6 @@ class ApplyJobs(models.Model):
     Post = models.ForeignKey(Post,on_delete=models.CASCADE)
     accepted = models.BooleanField(default=False)
     rejected = models.BooleanField(default=False)
+    schedule = models.DateField(null=True, default=None) 
     created_at = models.DateTimeField(auto_now_add=True,null=True)
 

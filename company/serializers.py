@@ -5,6 +5,7 @@ from api.serializers import *
 from rest_framework.serializers import ModelSerializer
 from rest_framework import serializers
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+from django.utils import timezone
 
 
 class CompanySerializer(ModelSerializer):
@@ -36,7 +37,6 @@ class CompanyPost(ModelSerializer):
         model = Post
         fields= '__all__'
 
-from django.utils import timezone
 # Company Posts getting
 class CompanyPostRetrieveSerilizer(ModelSerializer):
     companyinfo = CompanyInfoSerializer(required=False)
@@ -78,7 +78,42 @@ class ApplyJobSerializer(ModelSerializer):
 
 class ApplyJobSListerializer(ModelSerializer):
     userInfo = UserInfoSerializer()
+    Post = ListAllPostSerializer()
+    days = serializers.SerializerMethodField()
     user = UserSerializer(source='userInfo.userId', read_only=True)
     class Meta:
         model = ApplyJobs
+        fields = '__all__'
+
+    def get_days(self, obj):
+        now = timezone.now()
+        delta = now - obj.created_at
+        return delta.days
+    
+# Accept or rejected
+class Accept_or_rejected_ApplyJobsSerializer(ModelSerializer):
+    class Meta:
+        model = ApplyJobs
+        fields = ['accepted','rejected']
+
+class ScheduleDateSerializers(ModelSerializer):
+    class Meta:
+        model = ApplyJobs
+        fields = ['schedule']
+
+class CompanyNotificationSerializer(ModelSerializer):
+    class Meta:
+        model = Notification
+        fields = '__all__'
+
+class UserInfoListSerializer(ModelSerializer):
+    userId = UsersListSerializer()
+    skills = SkillsSerializers(many=True)
+    jobField = JobFieldSerializers()
+    jobTitle = JobTitleSerializers()
+    experience = ExperienceSerializer(many=True)
+    languages = LanguagesSerializers(many=True)
+    education = EducationSerializer(many=True)
+    class Meta:
+        model = UserInfo
         fields = '__all__'

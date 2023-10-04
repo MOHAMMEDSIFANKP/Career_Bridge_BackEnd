@@ -1,6 +1,7 @@
 from .serializers import *
 from .models import User
 from decouple import config
+from django.db.models import Q
 from .tasks import *
 from company.models import *
 from company.serializers import *
@@ -12,7 +13,7 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework import status
-
+from rest_framework.pagination import PageNumberPagination
 
 from django.utils.http import urlsafe_base64_decode
 from django.contrib.auth.tokens import default_token_generator
@@ -256,7 +257,7 @@ class EducationDetails(RetrieveUpdateDestroyAPIView):
 # UserInfo related Jobs Post
 class UserRelatedJobs(ListAPIView):
     serializer_class = CompanyPostRetrieveSerilizer
-    pagination_class = None
+    pagination_class = PageNumberPagination
     def get_serializer_context(self):
         context = super().get_serializer_context()
         user_info_id = self.kwargs['id']
@@ -267,8 +268,98 @@ class UserRelatedJobs(ListAPIView):
         user_info_id = self.kwargs['id']
         user_info = UserInfo.objects.get(id=user_info_id) 
         user_skills = user_info.skills.all()  
-        queryset = Post.objects.filter(skills__in=user_skills,companyinfo__is_verify=True).distinct()
+        queryset = Post.objects.filter(skills__in=user_skills,companyinfo__is_verify=True).distinct().order_by('-created_at')
         return queryset
+    
+# User Side Jobs Post
+class UserPost(ListAPIView):
+    filter_backends = [SearchFilter]
+    search_fields = ['companyinfo__company_name','job_category__field_name','Jobtitle__title_name','skills__skills','work_time','level_of_experience']
+    serializer_class = CompanyPostRetrieveSerilizer
+    pagination_class = PageNumberPagination
+
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+        user_info_id = self.kwargs['id']
+        user_info = UserInfo.objects.get(id=user_info_id)
+        context['user_info'] = user_info 
+        return context
+
+    def get_queryset(self):
+        skills = self.request.GET.get('skills', '')
+        job_category = self.request.GET.get('job_categories', '')
+        job_title = self.request.GET.get('job_title', '') 
+        talent_type = self.request.GET.get('talent_type', '') 
+
+        # Convert query parameter strings to lists
+        skills_list = skills.split(',') if skills else []
+        job_category_list = job_category.split(',') if job_category else []
+        job_title_list = job_title.split(',') if job_title else []
+        talent_type_list = talent_type.split(',') if talent_type else []
+        print(talent_type_list,'daxoo')
+        queryset = Post.objects.all().exclude(companyinfo__is_verify=False)
+
+        if skills_list:
+            skills_query = Q()
+            for skill in skills_list:
+                skills_query |= Q(skills__skills__icontains=skill)
+            queryset = queryset.filter(skills_query)
+
+        if job_category_list:
+            job_category_query = Q()
+            for category in job_category_list:
+                job_category_query |= Q(job_category__field_name__icontains=category)
+            queryset = queryset.filter(job_category_query)
+
+        if job_title_list:
+            job_title_query = Q()
+            for job_title in job_title_list:
+                job_title_query |= Q(Jobtitle__title_name__icontains=job_title)
+            queryset = queryset.filter(job_title_query)
+
+        if talent_type_list:
+            talent_type_query = Q()
+            for talent_type in talent_type_list:
+                talent_type_query |= Q(level_of_experience__icontains=talent_type)
+            queryset = queryset.filter(talent_type_query)
+
+        if skills_list or job_category_list or job_title_list or talent_type_list:
+            queryset = queryset.exclude(companyinfo__is_verify=False)
+        queryset = queryset.distinct().order_by('-created_at')
+
+        return queryset
+
+
+# User related Apply All Job
+class UserApplyPostList(ListAPIView):
+    serializer_class = UserApplyJobSListerializer
+    filter_backends = [SearchFilter]
+    search_fields = ['comanyInfo__company_name','comanyInfo__industry','comanyInfo__userId__email','Post__job_category__field_name','Post__Jobtitle__title_name','Post__skills__skills']
+    pagination_class = PageNumberPagination
+    def get_queryset(self):
+        user_info_id = self.kwargs['id']
+        return ApplyJobs.objects.filter(userInfo=user_info_id).order_by('-id')
+    
+# User related Apply Job
+class UserAcceptedApplyPostList(ListAPIView):
+    serializer_class = UserApplyJobSListerializer
+    filter_backends = [SearchFilter]
+    search_fields = ['comanyInfo__company_name','comanyInfo__industry','comanyInfo__userId__email','Post__job_category__field_name','Post__Jobtitle__title_name','Post__skills__skills']
+    pagination_class = PageNumberPagination
+    def get_queryset(self):
+        user_info_id = self.kwargs['id']
+        return ApplyJobs.objects.filter(userInfo=user_info_id,accepted=True).order_by('-id')
+
+# User related Apply Job
+class UserPendingApplyPostList(ListAPIView):
+    serializer_class = UserApplyJobSListerializer
+    filter_backends = [SearchFilter]
+    search_fields = ['comanyInfo__company_name','comanyInfo__industry','comanyInfo__userId__email','Post__job_category__field_name','Post__Jobtitle__title_name','Post__skills__skills']
+    pagination_class = PageNumberPagination
+    def get_queryset(self):
+        user_info_id = self.kwargs['id']
+        return ApplyJobs.objects.filter(userInfo=user_info_id,accepted=False,rejected=False).order_by('-id')
+
 from django.http import JsonResponse
 
 # Notification cout
@@ -276,3 +367,20 @@ def Notification_count(request, id):
     count = Notification.objects.filter(user__id=id,is_read=False).count()
     response_data = {'count': count}
     return JsonResponse(response_data)
+
+# Notification
+class userNotification(ListAPIView):
+    serializer_class = UserNotificationSerializer
+    pagination_class= None
+    def get_queryset(self):
+        user_id = self.kwargs['id']
+        if user_id:
+            return Notification.objects.filter(user_id=user_id).order_by('-timestamp')
+        else:
+            return Notification.objects.none()
+
+# Notification read
+class NotificationRead(RetrieveUpdateDestroyAPIView):
+    queryset = Notification.objects.all().exclude(user__role='admin')
+    serializer_class = NoficationSerializer
+    lookup_field = 'id'

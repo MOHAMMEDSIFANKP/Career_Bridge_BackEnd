@@ -3,7 +3,7 @@ from api.models import User
 from .models import *
 from django.shortcuts import render
 from api.tasks import *
-
+from .tasks import *
 from rest_framework.generics import RetrieveUpdateDestroyAPIView,CreateAPIView,ListCreateAPIView,ListAPIView,UpdateAPIView
 from rest_framework.views import APIView
 from rest_framework.decorators import api_view
@@ -211,19 +211,134 @@ class ApplyJobsCreation(CreateAPIView):
 
         if company_id:
             message = f'{user_id.first_name} {user_id.last_name} applied for the position "{job_name}"'
-            path = '/company/notifications/'
+            path = '/company/dashboard/'
             Notification.objects.create(user=company_id, message=message, path=path)
 
         if user_id:
             message = f'Congratulations, {user_id.first_name} {user_id.last_name}! You have successfully applied for the "{job_name}" position.'
-            path = '/user/notifications/'
+            path = '/user/dashboard/'
             Notification.objects.create(user=user_id, message=message, path=path)
 
+# Apply jobs List
 class CompanyApplyPostList(ListAPIView):
     serializer_class = ApplyJobSListerializer
-    pagination_class = None
+    filter_backends = [SearchFilter]
+    search_fields = ['userInfo__userId__email','userInfo__userId__first_name','userInfo__userId__last_name']
+    pagination_class = PageNumberPagination
     def get_queryset(self):
         company_info_id = self.kwargs['id']
-        return ApplyJobs.objects.filter(comanyInfo=company_info_id)
+        return ApplyJobs.objects.filter(comanyInfo=company_info_id).order_by('-id')
+
+# Apply jobs Pending List
+class Pending_ApplyJob(ListAPIView):
+    serializer_class = ApplyJobSListerializer
+    filter_backends = [SearchFilter]
+    search_fields = ['userInfo__userId__email','userInfo__userId__first_name','userInfo__userId__last_name']
+    pagination_class = PageNumberPagination
+    def get_queryset(self):
+        company_info_id = self.kwargs['id']
+        return ApplyJobs.objects.filter(comanyInfo=company_info_id,accepted=False,rejected=False).order_by('-id')
+
+# Apply jobs Accepted List
+class Accepted_ApplyJob(ListAPIView):
+    serializer_class = ApplyJobSListerializer
+    filter_backends = [SearchFilter]
+    search_fields = ['userInfo__userId__email','userInfo__userId__first_name','userInfo__userId__last_name']
+    pagination_class = PageNumberPagination
+    def get_queryset(self):
+        company_info_id = self.kwargs['id']
+        return ApplyJobs.objects.filter(comanyInfo=company_info_id,accepted=True).order_by('-id')
+
+# Apply jobs Rejected List
+class Rejected_ApplyJob(ListAPIView):
+    serializer_class = ApplyJobSListerializer
+    filter_backends = [SearchFilter]
+    search_fields = ['userInfo__userId__email','userInfo__userId__first_name','userInfo__userId__last_name']
+    pagination_class = PageNumberPagination
+    def get_queryset(self):
+        company_info_id = self.kwargs['id']
+        return ApplyJobs.objects.filter(comanyInfo=company_info_id,rejected=True).order_by('-id')
+
+# Accept or reject update
+class Accept_or_rejected_ApplyJob(UpdateAPIView):
+    serializer_class = Accept_or_rejected_ApplyJobsSerializer
+    queryset = ApplyJobs.objects.all()
+    lookup_field = 'id'
+
+    def update(self, request, *args, **kwargs):
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, data=request.data, partial=True)
+        
+        if serializer.is_valid():
+            serializer.save()
+            
+            user_id = instance.userInfo.userId
+            job_name = instance.Post.Jobtitle.title_name 
+            company_name = instance.comanyInfo.company_name 
+            if user_id and instance.accepted:
+                print('daxo')
+                message = f'Congratulations, {user_id.first_name} {user_id.last_name}! Your application for the "{job_name}" position has been accepted in "{company_name}" company.'
+                path = '/user/dashboard/'
+                Notification.objects.create(user=user_id, message=message, path=path)
+                send_accepted_users_email.delay(message,user_id.email)
+
+            return Response(serializer.data)
+        
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+# Date scheduled  
+class ScheduleDate(UpdateAPIView):
+    serializer_class = ScheduleDateSerializers
+    queryset = ApplyJobs.objects.all()
+    lookup_field = 'id'
+
+    def update(self, request, *args, **kwargs):
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, data=request.data, partial=True)
+        
+        if serializer.is_valid():
+            scheduled_date = serializer.validated_data.get('schedule')
+            max_users_per_date = 2
+            scheduled_users_count = ApplyJobs.objects.filter(schedule=scheduled_date).count()
+            if scheduled_users_count >= max_users_per_date:
+                return Response(
+                    {"detail": "Slot is full for this date. Please choose another date."},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+            serializer.save()
+            
+            user_id = instance.userInfo.userId
+            job_name = instance.Post.Jobtitle.title_name 
+            company_name = instance.comanyInfo.company_name 
+            scheduled_date = instance.schedule
+            if user_id and instance.accepted:
+                message = f'Hi, {user_id.first_name} {user_id.last_name}! Your interview for the "{job_name}" position at "{company_name}" has been scheduled for {scheduled_date}.'
+                path = '/user/dashboard/'
+                Notification.objects.create(user=user_id, message=message, path=path)
+                send_scheduled_users_email.delay(message,user_id.email)
+
+            return Response(serializer.data)
+        
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+# Company Notifications
+class CompanyNotification(ListAPIView):
+    serializer_class = CompanyNotificationSerializer
+    pagination_class = None
+    def get_queryset(self):
+        company_id = self.kwargs['id']
+        if company_id:
+            return Notification.objects.filter(user_id=company_id).order_by('-timestamp')
+        else:
+            return Notification.objects.none()
+
+# Company Home Page User LIsting
+class CompanyHomeListing(ListAPIView):
+    serializer_class = UserInfoListSerializer
+    filter_backends = [SearchFilter]
+    search_fields = ['userId__first_name','userId__last_name','skills__skills']
+    pagination_class = PageNumberPagination
+    queryset = UserInfo.objects.all().exclude(userId__is_compleated=False).order_by('-created_at')
+
 def seeimages(request):
     return render (request, 'company/email_template.html')

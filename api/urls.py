@@ -31,6 +31,13 @@ urlpatterns = [
     path('EducationDetails/<int:id>/', EducationDetails.as_view(), name='EducationDetails'),
     
     path('userrelatedjobs/<int:id>/', UserRelatedJobs.as_view(), name='UserRelatedJobs'),
+    path('userpostlist/<int:id>/', UserPost.as_view(), name='UserPost'),
+    
+    path('UserApplyPostList/<int:id>/', UserApplyPostList.as_view(), name='UserApplyPostList'),
+    path('UserAcceptedApplyPostList/<int:id>/', UserAcceptedApplyPostList.as_view(), name='UserAcceptedApplyPostList'),
+    path('UserPendingApplyPostList/<int:id>/', UserPendingApplyPostList.as_view(), name='UserPendingApplyPostList'),
     
     path('notificationconut/<int:id>/', views.Notification_count, name='Notification_count'),
+    path('usernotification/<int:id>/', userNotification.as_view(), name='userNotification'),
+    path('NotificationRead/<int:id>/', NotificationRead.as_view(), name='NotificationRead'),
 ]

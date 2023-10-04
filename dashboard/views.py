@@ -108,7 +108,7 @@ class LanguagesdDetails(RetrieveUpdateDestroyAPIView):
 
 # Skills list and create
 class SkillsListCreateAPIView(ListCreateAPIView):
-    queryset = Skills.objects.all().exclude(is_deleted=True).order_by('-id')
+    queryset = Skills.objects.all().exclude(is_deleted=True)
     serializer_class = SkillsSerializers
     pagination_class = None
     filter_backends = [SearchFilter]
