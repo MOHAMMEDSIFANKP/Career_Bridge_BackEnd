@@ -1,10 +1,14 @@
 from django.urls import path
 from .views import *
+from .import views
 from rest_framework_simplejwt.views import TokenRefreshView
 
 urlpatterns = [
    path('token/',AdminTokenObtainPairView.as_view(), name='AdminTokenObtainPairView'),
    path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+   
+   path('get_chart_data/', views.get_chart_data, name='get_chart_data'),
+
 
    path('JobFieldListAndCreater/',JobFieldListAndCreater.as_view(), name="JobFieldList"),
    path('jobfieldlistandcreaterpagination/',JobFieldListAndCreaterPagination.as_view(), name="JobFieldListAndCreaterPagination"),

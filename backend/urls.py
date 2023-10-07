@@ -7,4 +7,5 @@ urlpatterns = [
     path('api/', include('api.urls')),
     path('company/', include('company.urls')),
     path('dashboard/', include('dashboard.urls')),
+    path('chat/', include('chat.urls')),
 ]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

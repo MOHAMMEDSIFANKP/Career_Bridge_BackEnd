@@ -1,5 +1,6 @@
 from .serializers import *
 from .models import User
+from django.contrib.auth.hashers import check_password
 
 # Restframework
 from rest_framework.views import View
@@ -86,7 +87,26 @@ def remove_skill(request):
         return Response({'message': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
     except Skills.DoesNotExist:
         return Response({'message': 'Skill not found'}, status=status.HTTP_404_NOT_FOUND)
-    
 
+# Reset Password
+@api_view(['POST'])
+def reset_password(request,id):
+    old_password = request.data.get('old_password')
+    new_password = request.data.get('new_password')
+    confirm_password = request.data.get('confirm_password')
+    try:
+        user = User.objects.get(id=id)
+        if check_password(old_password, user.password):
+            if new_password == confirm_password:
+                user.set_password(new_password)
+                user.save()
+                return Response({'message': 'Password reset successfully'},status=status.HTTP_200_OK)
+            else:
+                return Response({'message':'Password did not match'},status=status.HTTP_400_BAD_REQUEST)
+
+        return Response({'message' : 'Wrong old password'},status=status.HTTP_400_BAD_REQUEST)
+            
+    except User.DoesNotExist:
+        return Response ({'message' : 'user Not found'},status=status.HTTP_400_BAD_REQUEST)
 
 

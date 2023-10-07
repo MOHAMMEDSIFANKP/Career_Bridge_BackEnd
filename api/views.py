@@ -384,3 +384,14 @@ class NotificationRead(RetrieveUpdateDestroyAPIView):
     queryset = Notification.objects.all().exclude(user__role='admin')
     serializer_class = NoficationSerializer
     lookup_field = 'id'
+
+
+# Company LIst in Userside
+class CompaniesList(ListAPIView):
+    serializer_class = CompanyiesChattingLIst
+    pagination_class = None
+
+    def get_queryset(self):
+        user_id = self.kwargs['id'] 
+        return ApplyJobs.objects.filter(userInfo__userId=user_id, accepted=True).order_by('userInfo__userId', 'created_at').distinct('userInfo__userId')
+

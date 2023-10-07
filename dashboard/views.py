@@ -2,7 +2,11 @@ from .models import *
 from api.models import *
 from .serializers import *
 from django.core.exceptions import ValidationError
+from django.shortcuts import get_object_or_404
 
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
+from rest_framework import status
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework.generics import ListCreateAPIView,RetrieveUpdateDestroyAPIView,ListAPIView,UpdateAPIView
 from rest_framework.filters import SearchFilter
@@ -247,3 +251,41 @@ class AdminNotificationRead(RetrieveUpdateDestroyAPIView):
     serializer_class = NoficationSerializer
     lookup_field = 'id'
 
+from django.db.models import Sum,Count
+from django.db.models.functions import ExtractMonth
+
+@api_view(['GET'])
+def get_chart_data(request):
+    user_count = User.objects.filter(role='user').count()
+    company_count = User.objects.filter(role='company').count()
+
+    post_counts = Post.objects.annotate(month=ExtractMonth("created_at")).values("month").annotate(count=Count("id"))
+    
+    if user_count > 0 and company_count > 0 and post_counts:
+        chart_data = {
+            'pie_chart': {
+                'labels': ["Users", "Company"],
+                'datasets': [
+                    {
+                        'label': "Counts",
+                        'data': [user_count, company_count],
+                        'backgroundColor': ["rgb(255, 99, 132)", "rgb(54, 162, 235)"],
+                    }
+                ]
+            },
+            'line_chart': {
+                'labels': [f"Month {entry['month']}" for entry in post_counts],
+                'datasets': [
+                    {
+                        'label': "Post Counts",
+                        'data': [entry['count'] for entry in post_counts],
+                        'fill': False,
+                        'borderColor': "rgb(75, 192, 192)",
+                        'tension': 0.1,
+                    }
+                ]
+            }
+        }
+        return Response(chart_data, status=status.HTTP_200_OK)
+    else:
+        return Response({'message': 'No data available'}, status=status.HTTP_400_BAD_REQUEST)

@@ -16,6 +16,8 @@ urlpatterns = [
     path('forgotpassword/', Forgotpassword.as_view(), name='Forgotpassword'),
     path('resetpassword/<uidb64>/', views.resetpassword, name='resetpassword'),
     path('restpassword/<int:id>/', UserRestpassword.as_view(), name='UserRestpassword'),
+# Reset password in profile
+    path('reset_password/<int:id>/', view_profile.reset_password, name='reset_password'),
 
     path('UserInfoListCreateAPIView/', UserInfoListCreateAPIView.as_view(), name='UserInfoListCreateAPIView'),
     path('UserInfoDetails/<int:id>/', UserInfoDetails.as_view(), name='UserInfoDetails'),
@@ -40,4 +42,6 @@ urlpatterns = [
     path('notificationconut/<int:id>/', views.Notification_count, name='Notification_count'),
     path('usernotification/<int:id>/', userNotification.as_view(), name='userNotification'),
     path('NotificationRead/<int:id>/', NotificationRead.as_view(), name='NotificationRead'),
+
+    path('CompaniesList/<int:id>/',CompaniesList.as_view(),name='CompaniesList'),
 ]
