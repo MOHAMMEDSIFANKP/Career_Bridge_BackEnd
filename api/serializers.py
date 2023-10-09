@@ -225,9 +225,9 @@ class UserNotificationSerializer(ModelSerializer):
 # CompanyList
 class CompanyiesChattingLIst(ModelSerializer):
     userId = serializers.IntegerField(source='comanyInfo.userId.id', read_only=True)
-    first_name = serializers.CharField(source='comanyInfo.userId.first_name', read_only=True)
-    last_name = serializers.CharField(source='comanyInfo.userId.last_name', read_only=True)
+    email = serializers.CharField(source='comanyInfo.userId.email', read_only=True)
+    company_name = serializers.CharField(source='comanyInfo.company_name', read_only=True)
     profile_image = serializers.ImageField(source='comanyInfo.userId.profile_image', read_only=True)
     class Meta:
         model = ApplyJobs
-        fields = ['userId','first_name','last_name','profile_image']
+        fields = ['userId','email','company_name','profile_image']

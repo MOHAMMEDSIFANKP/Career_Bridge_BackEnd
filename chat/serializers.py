@@ -5,19 +5,9 @@ from api.serializers import UserSerializer
 from rest_framework import serializers
 
 
-# class Messageserializer(ModelSerializer):
-#     class Meta:
-#         model = Message
-#         fields =  '__all__'
-
 class MessageSerializer(ModelSerializer):
-    sender_username = UserSerializer()
+    sender_email = serializers.EmailField(source='sender.email')
 
     class Meta:
         model = Message
-        fields = ['message','sender_username']
-
-    def get_sender_username(self,obj):
-        return obj.sender.username
-    
-    
+        fields = ['message', 'sender_email']

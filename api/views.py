@@ -389,6 +389,8 @@ class NotificationRead(RetrieveUpdateDestroyAPIView):
 # Company LIst in Userside
 class CompaniesList(ListAPIView):
     serializer_class = CompanyiesChattingLIst
+    filter_backends = [SearchFilter]
+    search_fields = ['comanyInfo__company_name']
     pagination_class = None
 
     def get_queryset(self):

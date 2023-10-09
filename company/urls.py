@@ -29,5 +29,7 @@ urlpatterns = [
     path('CompanyNotification/<int:id>/', CompanyNotification.as_view(), name='CompanyNotification'),
     path('CompanyHomeListing/', CompanyHomeListing.as_view(), name='CompanyHomeListing'),
     
+    path('userslisting/<int:id>/', UsersListing.as_view(), name='UsersListing'),
+    
     path('seeimages/', views.seeimages, name='seeimages'),
 ]

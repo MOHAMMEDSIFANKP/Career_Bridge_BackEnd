@@ -117,3 +117,15 @@ class UserInfoListSerializer(ModelSerializer):
     class Meta:
         model = UserInfo
         fields = '__all__'
+
+
+# CompanyList
+class UsersChatListSerializer(ModelSerializer):
+    userId = serializers.IntegerField(source='userInfo.userId.id', read_only=True)
+    email = serializers.CharField(source='userInfo.userId.email', read_only=True)
+    first_name = serializers.CharField(source='userInfo.userId.first_name', read_only=True)
+    last_name = serializers.CharField(source='userInfo.userId.last_name', read_only=True)
+    profile_image = serializers.ImageField(source='userInfo.userId.profile_image', read_only=True)
+    class Meta:
+        model = ApplyJobs
+        fields = ['userId','email','first_name','last_name','profile_image']

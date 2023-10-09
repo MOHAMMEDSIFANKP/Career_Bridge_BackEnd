@@ -65,7 +65,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
     @database_sync_to_async
     def get_user(self, username):
-        return get_user_model().objects.filter(username=username).first()
+        return get_user_model().objects.filter(email=username).first()
 
     @database_sync_to_async
     def get_messages(self):

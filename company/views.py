@@ -340,5 +340,18 @@ class CompanyHomeListing(ListAPIView):
     pagination_class = PageNumberPagination
     queryset = UserInfo.objects.all().exclude(userId__is_compleated=False).order_by('-created_at')
 
+# Chating list
+class UsersListing(ListAPIView):
+    serializer_class = UsersChatListSerializer
+    filter_backends = [SearchFilter]
+    search_fields = ['userInfo__userId__first_name','userInfo__userId__last_name','userInfo__userId__email']
+    pagination_class = None
+
+    def get_queryset(self):
+        user_id = self.kwargs['id'] 
+        return ApplyJobs.objects.filter(comanyInfo__userId=user_id, accepted=True).order_by('comanyInfo__userId', '-created_at').distinct('comanyInfo__userId')
+
+
+
 def seeimages(request):
     return render (request, 'company/email_template.html')
