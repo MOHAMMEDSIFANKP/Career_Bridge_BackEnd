@@ -231,3 +231,4 @@ class CompanyiesChattingLIst(ModelSerializer):
     class Meta:
         model = ApplyJobs
         fields = ['userId','email','company_name','profile_image']
+

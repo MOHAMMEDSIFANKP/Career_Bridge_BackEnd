@@ -64,6 +64,8 @@ class CompanyPostRetrieveSerilizer(ModelSerializer):
         else:
             return False 
 
+
+
 # Company Posts Block unblok and Delete un delete
 class CompanyPostBlockUnblock(ModelSerializer):
     class Meta:
@@ -129,3 +131,62 @@ class UsersChatListSerializer(ModelSerializer):
     class Meta:
         model = ApplyJobs
         fields = ['userId','email','first_name','last_name','profile_image']
+
+# Invite Users
+class UserInveiteSerializer(ModelSerializer):
+    class Meta:
+        model = InviteUsers
+        fields = '__all__'
+
+# Invite User shows in userside
+class InviteUserListUsersides(ModelSerializer):
+    comanyInfo = CompanyInfoSerializer()
+    Post = ListAllPostSerializer()
+    days = serializers.SerializerMethodField()
+    class Meta:
+        model = InviteUsers
+        fields = '__all__'
+
+    def get_days(self, obj):
+        now = timezone.now()
+        delta = now - obj.created_at
+        return delta.days
+    
+# Company side Users lisitng
+class UserlistCompanyserializer(ModelSerializer):
+    invited = serializers.SerializerMethodField()
+    jobField = JobFieldSerializers()
+    jobTitle = JobTitleSerializers()
+    userId = UserSerializer()
+    experience = ExperienceSerializer(many=True)
+    languages = LanguagesSerializers(many=True)
+    education = EducationSerializer(many=True)
+    skills = SkillsSerializers(many=True)
+    class Meta:
+        model = UserInfo
+        fields = '__all__'
+    def get_invited(self, obj):
+        comapny_info = self.context.get('comapny_info')  
+        if comapny_info:
+            if InviteUsers.objects.filter(comanyInfo=comapny_info, userInfo=obj.id).exists():
+                return True
+            else:
+                return False
+        else:
+            return False 
+        
+# Unkown users Home page
+class UnkownUserSerializer(ModelSerializer):
+    days = serializers.SerializerMethodField()
+    companyinfo = CompanyInfoSerializer()
+    job_category = JobFieldSerializers()
+    Jobtitle = JobTitleSerializers()
+    skills = SkillsSerializers(many=True)
+    profile_image = serializers.ImageField(source='companyinfo.userId.profile_image', read_only=True)
+    class Meta:
+        model = Post
+        fields = '__all__'
+    def get_days(self, obj):
+        now = timezone.now()
+        delta = now - obj.created_at
+        return delta.days

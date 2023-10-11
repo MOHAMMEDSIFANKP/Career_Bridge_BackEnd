@@ -31,5 +31,14 @@ urlpatterns = [
     
     path('userslisting/<int:id>/', UsersListing.as_view(), name='UsersListing'),
     
+    path('inviteusercreate/', InviteUserCreate.as_view(), name='InviteUserCreate'),
+    path('inviteUserlistuserside/<int:id>/', InviteUserListUserside.as_view(), name='InviteUserListUserside'),
+    path('iviteacceptedusers/<int:id>/', views.ivite_accepted_users, name='ivite_accepted_users'),
+    path('iviterejectedusers/<int:id>/', views.ivite_rejected_users, name='ivite_rejected_users'),
+    
+    path('userListCompany/<int:id>/', userListCompany.as_view(), name='userListCompany'),
+    
+    path('UnkownuserHome/',UnkownuserHome.as_view(),name='UnkownuserHome'),
+
     path('seeimages/', views.seeimages, name='seeimages'),
 ]

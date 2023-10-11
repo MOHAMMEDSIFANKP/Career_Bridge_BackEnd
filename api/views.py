@@ -397,3 +397,4 @@ class CompaniesList(ListAPIView):
         user_id = self.kwargs['id'] 
         return ApplyJobs.objects.filter(userInfo__userId=user_id, accepted=True).order_by('userInfo__userId', 'created_at').distinct('userInfo__userId')
 
+

@@ -4,6 +4,7 @@ from .models import *
 from django.shortcuts import render
 from api.tasks import *
 from .tasks import *
+from django.db.models import Q
 from rest_framework.generics import RetrieveUpdateDestroyAPIView,CreateAPIView,ListCreateAPIView,ListAPIView,UpdateAPIView
 from rest_framework.views import APIView
 from rest_framework.decorators import api_view
@@ -351,7 +352,102 @@ class UsersListing(ListAPIView):
         user_id = self.kwargs['id'] 
         return ApplyJobs.objects.filter(comanyInfo__userId=user_id, accepted=True).order_by('comanyInfo__userId', '-created_at').distinct('comanyInfo__userId')
 
+class InviteUserCreate(CreateAPIView):
+    serializer_class = UserInveiteSerializer
+    queryset = InviteUsers.objects.all()
 
 
+class InviteUserListUserside(ListAPIView):
+    serializer_class = InviteUserListUsersides
+    filter_backends = [SearchFilter]
+    search_fields = ['comanyInfo__company_name','comanyInfo__industry','Post__job_category__field_name','Post__Jobtitle__title_name','Post__skills__skills']
+    pagination_class = PageNumberPagination
+
+    def get_queryset(self):
+        user_info_id = self.kwargs['id']
+        return InviteUsers.objects.filter(userInfo=user_info_id)
+
+# invite accepting
+@api_view(['POST'])
+def ivite_accepted_users(request, id):
+    try:
+        invite = get_object_or_404(InviteUsers, id=id)
+        ApplyJobs.objects.create(
+            comanyInfo=invite.comanyInfo,
+            userInfo=invite.userInfo,
+            Post=invite.Post
+        )
+        invite.delete()
+        return Response({'message': 'Accepted successfully'}, status=status.HTTP_202_ACCEPTED)
+    except:
+        return Response({'message': 'Something went wrong'}, status=status.HTTP_400_BAD_REQUEST)
+
+# invite rejecting
+@api_view(['POST'])
+def ivite_rejected_users(request, id):
+    try:
+        invite = get_object_or_404(InviteUsers, id=id)
+        invite.delete()
+        return Response({'message': 'Rejected successfully'}, status=status.HTTP_200_OK)
+    except:
+        return Response({'message': 'Something went wrong'}, status=status.HTTP_400_BAD_REQUEST)
+    
+
+# User Side Jobs Post
+class userListCompany(ListAPIView):
+    serializer_class = UserlistCompanyserializer
+    filter_backends = [SearchFilter]
+    pagination_class = PageNumberPagination
+    search_fields = ['userId__first_name','userId__last_name','userId__email','skills__skills','jobField__field_name','jobTitle__title_name' ]
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+        comapny_info_id = self.kwargs['id']
+        comapny_info = CompanyInfo.objects.get(id=comapny_info_id)
+        context['comapny_info'] = comapny_info 
+        return context
+    
+    def get_queryset(self):
+        skills = self.request.GET.get('skills', '')
+        job_category = self.request.GET.get('job_categories', '')
+        job_title = self.request.GET.get('job_title', '') 
+
+        # Convert query parameter strings to lists
+        skills_list = skills.split(',') if skills else []
+        job_category_list = job_category.split(',') if job_category else []
+        job_title_list = job_title.split(',') if job_title else []
+        queryset = UserInfo.objects.all()
+
+        if skills_list:
+            skills_query = Q()
+            for skill in skills_list:
+                skills_query |= Q(skills__skills__icontains=skill)
+            queryset = queryset.filter(skills_query)
+
+        if job_category_list:
+            job_category_query = Q()
+            for category in job_category_list:
+                job_category_query |= Q(jobField__field_name__icontains=category)
+            queryset = queryset.filter(job_category_query)
+
+        if job_title_list:
+            job_title_query = Q()
+            for job_title in job_title_list:
+                job_title_query |= Q(jobTitle__title_name__icontains=job_title)
+            queryset = queryset.filter(job_title_query)
+        if skills_list or job_category_list or job_title_list:
+            queryset = queryset.exclude(userId__is_compleated=False,userId__is_active=False)
+        queryset = queryset.distinct().order_by('-created_at')
+
+        return queryset
+
+
+# Unkow user Home Pge
+class UnkownuserHome(ListAPIView):
+    queryset = Post.objects.all().exclude(is_blocked=True,is_deleted=True)
+    serializer_class = UnkownUserSerializer
+    pagination_class = PageNumberPagination
+    filter_backends = [SearchFilter]
+    search_fields = ['companyinfo__company_name','companyinfo__industry','companyinfo__company_type','companyinfo__streetaddress','companyinfo__state','companyinfo__country','companyinfo__city','skills__skills','job_category__field_name','Jobtitle__title_name' ,'description']
+    
 def seeimages(request):
     return render (request, 'company/email_template.html')

@@ -148,10 +148,10 @@ ASGI_APPLICATION = "backend.asgi.application"
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': config('dbname'),
-        'USER': config('dbuser'),
-        'PASSWORD': config('dbpass'),
-        'HOST': 'localhost', 
+        'NAME': config('Database'),
+        'USER': config('Username'),
+        'PASSWORD': config('Password'),
+        'HOST':config('Hostname'), 
         'PORT': '5432',  
     }
 }
@@ -210,8 +210,8 @@ CORS_ALLOWED_ORIGINS = [
     'http://127.0.0.1:5173',    
 ]
 
-CELERY_BROKER_URL = 'redis://localhost:6379/0' 
-CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'
+CELERY_BROKER_URL = config('redis')
+CELERY_RESULT_BACKEND = config('redis')
 
 CELERY_ACCEPT_CONTENT = ['json']
 CELERY_TASK_SERIALIZER = 'json'
@@ -237,7 +237,7 @@ CHANNEL_LAYERS = {
     'default': {
         'BACKEND': 'channels_redis.core.RedisChannelLayer',
         'CONFIG': {
-            "hosts": [('localhost', 6379)],
+            "hosts": [(config('redis'))],
         },
     },
 }

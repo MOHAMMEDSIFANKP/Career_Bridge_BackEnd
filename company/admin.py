@@ -4,3 +4,4 @@ from .models import *
 admin.site.register(CompanyInfo)
 admin.site.register(Post)
 admin.site.register(ApplyJobs)
+admin.site.register(InviteUsers)
