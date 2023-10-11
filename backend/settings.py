@@ -210,8 +210,8 @@ CORS_ALLOWED_ORIGINS = [
     'http://127.0.0.1:5173',    
 ]
 
-CELERY_BROKER_URL = config('redis')
-CELERY_RESULT_BACKEND = config('redis')
+CELERY_BROKER_URL = config('celery')
+CELERY_RESULT_BACKEND = config('celery')
 
 CELERY_ACCEPT_CONTENT = ['json']
 CELERY_TASK_SERIALIZER = 'json'
