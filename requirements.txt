@@ -6,7 +6,7 @@ autobahn==23.1.2
 Automat==22.10.0
 backports.zoneinfo==0.2.1
 billiard>=3.6.4.0,<4.0
-celery==5.2.0
+celery==5.3.0b3
 cffi==1.15.0
 channels==4.0.0
 channels-redis==4.1.0
@@ -24,7 +24,7 @@ djangorestframework-simplejwt==5.3.0
 hyperlink==21.0.0
 idna==3.4
 incremental==22.10.0
-kombu==5.3.0
+kombu==5.3.0b3
 msgpack==1.0.5
 Pillow==8.4.0
 prompt-toolkit==3.0.39
