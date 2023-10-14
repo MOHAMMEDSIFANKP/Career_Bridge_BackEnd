@@ -39,7 +39,7 @@ python-dateutil==2.8.2
 python-decouple==3.8
 pytz==2023.3.post1
 redis==5.0.1
-service-identity==23.1.0
+service-identity==21.1.0
 six==1.16.0
 sqlparse==0.4.4
 twisted==23.8.0
